@@ -1,41 +1,41 @@
 import { useState } from 'react';
-import { Calendar, Search } from 'lucide-react';
+import { Globe, Search, Trophy, Users, ShieldCheck } from 'lucide-react';
 import { competitions } from '../data/siteData';
 import { CompetitionCard } from '../components/CompetitionCard';
 
 const filterOptions = [
-  { id: 'sve', label: 'Sva natjecanja' },
-  { id: 'otvoreno', label: 'Otvorene prijave / U najavi' },
-  { id: 'Turnir', label: 'Turniri' },
+  { id: 'sve', label: 'Svi programi i izdanja' },
+  { id: 'otvoreno', label: 'Otvoreno / U pripremi' },
   { id: 'Liga', label: 'Lige' },
-  { id: 'Veterani', label: 'Veterani 35+' },
+  { id: 'Turnir', label: 'Turniri' },
   { id: 'Mladi', label: 'Djeca i mladi' },
+  { id: 'Arhiva', label: 'Povijesna arhiva' },
 ];
 
-const seasonalCalendar = [
+const programPillars = [
   {
-    season: 'Zima (Prosinac – Siječanj)',
-    event: 'Zimski malonogometni turnir "Križevci Kup"',
-    venue: 'Školsko-sportska dvorana Križevci',
-    audience: 'Seniori i otvorena kategorija (32 ekipe)',
+    step: 'Gradske i rekreativne lige',
+    title: 'Organizacija ligaških natjecanja u Hrvatskoj',
+    detail: 'Cjelovita priprema propozicija, delegiranja, suđenja i digitalnog praćenja statistike u suradnji s lokalnim sredinama.',
+    icon: <Globe size={20} aria-hidden="true" />,
   },
   {
-    season: 'Proljeće (Travanj)',
-    event: 'Kup mladih nada Prigorja (U-9, U-11, U-13)',
-    venue: 'ŠRC Križevci – vanjski tereni',
-    audience: 'Škole nogometa i mlađi uzrasti',
+    step: 'Kupovi i vikend turniri',
+    title: 'Dvoranski i vanjski malonogometni turniri',
+    detail: 'Natjecanja po skupinama i eliminacijskom sustavu za seniorske, kvartovske i korporativne ekipe iz cijele Hrvatske.',
+    icon: <Trophy size={20} aria-hidden="true" />,
   },
   {
-    season: 'Ljeto (Svibanj – Rujan)',
-    event: 'Malonogometna liga "Dobrosusjedski odnosi" & Noćni 3v3 turnir',
-    venue: 'Vanjsko igralište Gimnazije u Križevcima (pod reflektorima)',
-    audience: '12 seniorskih ekipa (11 kola + Sofascore praćenje)',
+    step: 'Razvoj mladih sportaša',
+    title: 'Uključivanje djece i mladih u sport',
+    detail: 'Turniri i sportski susreti za škole nogometa s fokusom na igru, zdravlje i učenje fair playa bez pritiska rezultata.',
+    icon: <Users size={20} aria-hidden="true" />,
   },
   {
-    season: 'Jesen (Rujan – Studeni)',
-    event: 'Rekreativna i veteranska liga Križevci 35+',
-    venue: 'Sportski park / GŠSD Križevci',
-    audience: 'Veterani 35+, radni kolektivi i rekreativci',
+    step: 'Međuregionalno povezivanje',
+    title: 'Suradnja sportskih udruga i klubova',
+    detail: 'Povezivanje pobjednika različitih liga kroz revijalne i kup susrete po uzoru na ranije županijske oglede prvaka.',
+    icon: <ShieldCheck size={20} aria-hidden="true" />,
   },
 ];
 
@@ -65,13 +65,13 @@ export function CompetitionsPage() {
     <>
       <section className="page-banner">
         <div className="container">
-          <p className="eyebrow eyebrow--gold">Organizirana sportska događanja</p>
+          <p className="eyebrow eyebrow--gold">Sportski projekti i natjecanja</p>
           <h1 id="page-main-heading" tabIndex={-1} className="page-banner__title">
-            Nogometne lige i turniri
+            Lige, turniri i arhiva natjecanja
           </h1>
           <p className="page-banner__lead">
-            Pregled svih aktualnih liga, dvoranskih kupova, noćnih turnira i natjecanja za mlađe
-            uzraste u organizaciji naše udruge na području Križevaca.
+            Pregled održanih sezona, povijesne arhive te programa udruge usmjerenih na razvoj i
+            organizaciju malonogometnih liga i turnira diljem Hrvatske.
           </p>
         </div>
       </section>
@@ -118,7 +118,7 @@ export function CompetitionsPage() {
                 type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Pretraži turnir ili ligu..."
+                placeholder="Pretraži ligu, turnir ili arhivu..."
                 aria-label="Pretraži natjecanja"
                 style={{
                   inlineSize: '100%',
@@ -141,7 +141,7 @@ export function CompetitionsPage() {
                 border: '1px solid var(--border-light)',
               }}
             >
-              <h2 style={{ fontSize: '1.5rem' }}>Nema natjecanja za odabrani kriterij</h2>
+              <h2 style={{ fontSize: '1.5rem' }}>Nema rezultata za odabrani kriterij</h2>
               <p style={{ color: 'var(--text-secondary)', marginTop: '0.4rem' }}>
                 Pokušajte poništiti filter ili upisati drugi pojam pretrage.
               </p>
@@ -154,7 +154,7 @@ export function CompetitionsPage() {
                   setQuery('');
                 }}
               >
-                Prikaži sva natjecanja
+                Prikaži sve programe
               </button>
             </div>
           ) : (
@@ -167,33 +167,28 @@ export function CompetitionsPage() {
         </div>
       </section>
 
-      {/* GODIŠNJI KALENDAR */}
       <section className="section section--subtle">
         <div className="container">
           <div className="section-head">
             <div>
-              <p className="eyebrow">Cjelogodišnji ciklus</p>
-              <h2 className="section-title">Okvirni godišnji kalendar događanja</h2>
+              <p className="eyebrow">Nacionalni smjer razvoja</p>
+              <h2 className="section-title">Područja organizacije natjecanja</h2>
               <p className="section-subtitle">
-                Planirajte nastup svoje ekipe unaprijed kroz sva četiri godišnja doba u Križevcima.
+                Model udruge prilagođen je suradnji s klubovima, gradovima, općinama i sportskim
+                centrima u cijeloj Hrvatskoj.
               </p>
             </div>
           </div>
 
           <div className="info-grid">
-            {seasonalCalendar.map((item) => (
-              <div key={item.season} className="info-card">
-                <div className="info-card__icon">
-                  <Calendar size={20} aria-hidden="true" />
-                </div>
+            {programPillars.map((item) => (
+              <div key={item.title} className="info-card">
+                <div className="info-card__icon">{item.icon}</div>
                 <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--pitch-700)' }}>
-                  {item.season}
+                  {item.step}
                 </span>
-                <h3 style={{ fontSize: '1.3rem', textTransform: 'uppercase' }}>{item.event}</h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
-                  <strong>Lokacija:</strong> {item.venue}
-                </p>
-                <p style={{ fontSize: '0.86rem', color: 'var(--text-muted)' }}>{item.audience}</p>
+                <h3 style={{ fontSize: '1.3rem', textTransform: 'uppercase' }}>{item.title}</h3>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{item.detail}</p>
               </div>
             ))}
           </div>

@@ -2,14 +2,15 @@ import { useRef, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Check,
-  Clock,
   Copy,
+  Globe,
   HelpCircle,
   Mail,
   MapPin,
-  Phone,
   Send,
+  ShieldCheck,
   Trophy,
+  Users,
 } from 'lucide-react';
 import { associationInfo, competitions, faqs } from '../data/siteData';
 import { AccessibleTabs } from '../components/AccessibleTabs';
@@ -19,7 +20,6 @@ import { useAccessibleFormValidation } from '../utils/accessibleForms';
 interface RegistrationSummary {
   refCode: string;
   competitionTitle: string;
-  entryFee: string;
   teamName: string;
   cityOrigin: string;
   captainName: string;
@@ -35,16 +35,19 @@ export function RegistrationAndContactPage() {
 }
 
 function RegistrationAndContactContent({ searchParams }: { searchParams: URLSearchParams }) {
+  const openCompetitions = competitions.filter((c) => c.status !== 'zavrseno');
   const paramComp = searchParams.get('natjecanje');
   const initialComp =
-    paramComp && competitions.some((c) => c.id === paramComp) ? paramComp : competitions[0].id;
+    paramComp && openCompetitions.some((c) => c.id === paramComp)
+      ? paramComp
+      : openCompetitions[0]?.id || competitions[0].id;
   const initialTab = searchParams.get('tab') === 'upit' ? 'upit' : 'prijava';
 
   const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [selectedCompId, setSelectedCompId] = useState<string>(initialComp);
   const [submission, setSubmission] = useState<RegistrationSummary | null>(null);
   const [contactSent, setContactSent] = useState(false);
-  const [copiedIban, setCopiedIban] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
 
   const regFormRef = useRef<HTMLFormElement>(null);
   const contactFormRef = useRef<HTMLFormElement>(null);
@@ -69,7 +72,6 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
     setSubmission({
       refCode: `NLT-${new Date().getFullYear()}-${randomNum}`,
       competitionTitle: comp.title,
-      entryFee: comp.entryFee,
       teamName: String(data.get('teamName') || ''),
       cityOrigin: String(data.get('cityOrigin') || ''),
       captainName: String(data.get('captainName') || ''),
@@ -89,34 +91,51 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
       firstInvalid?.focus();
       return;
     }
+
+    const data = new FormData(form);
+    const subject = encodeURIComponent(
+      `Upit sa stranice (${String(data.get('topic') || 'Suradnja')}) – ${String(data.get('senderName') || '')}`
+    );
+    const body = encodeURIComponent(
+      [
+        `Ime / organizacija: ${String(data.get('senderName') || '')}`,
+        `E-pošta: ${String(data.get('senderEmail') || '')}`,
+        `Tema: ${String(data.get('topic') || '')}`,
+        ``,
+        `Poruka:`,
+        String(data.get('message') || ''),
+      ].join('\n')
+    );
+
     setContactSent(true);
+    window.location.href = `mailto:${associationInfo.email}?subject=${subject}&body=${body}`;
     form.reset();
   };
 
-  const copyIban = async () => {
+  const copyEmail = async () => {
     try {
-      await navigator.clipboard.writeText(associationInfo.iban);
-      setCopiedIban(true);
-      setTimeout(() => setCopiedIban(false), 2500);
+      await navigator.clipboard.writeText(associationInfo.email);
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 2500);
     } catch {
-      // Clipboard možda nije dostupan u nekim okruženjima
+      // Clipboard API fallback
     }
   };
 
   const buildMailtoHref = (s: RegistrationSummary) => {
-    const subject = encodeURIComponent(`Prijava ekipe: ${s.teamName} (${s.competitionTitle})`);
+    const subject = encodeURIComponent(`Prijava / iskaz interesa: ${s.teamName} (${s.competitionTitle})`);
     const body = encodeURIComponent(
       [
         `Poštovani,`,
         ``,
-        `Šaljemo online prijavu ekipe putem web stranice Udruge:`,
-        `- Evidencijski broj: ${s.refCode}`,
-        `- Natjecanje: ${s.competitionTitle}`,
-        `- Naziv ekipe: ${s.teamName}`,
-        `- Mjesto / kvart: ${s.cityOrigin}`,
-        `- Voditelj ekipe: ${s.captainName}`,
-        `- Kontakt mobitel: ${s.phone}`,
-        `- E-mail: ${s.email}`,
+        `Šaljemo prijavu putem web stranice udruge Nogometne lige i turniri:`,
+        `- Evidencijski kôd: ${s.refCode}`,
+        `- Program / natjecanje: ${s.competitionTitle}`,
+        `- Naziv ekipe / organizacije: ${s.teamName}`,
+        `- Grad / mjesto: ${s.cityOrigin}`,
+        `- Kontakt osoba (voditelj): ${s.captainName}`,
+        `- Telefon: ${s.phone}`,
+        `- E-pošta: ${s.email}`,
         `- Okvirni broj igrača: ${s.playersCount}`,
         s.notes ? `- Napomena: ${s.notes}` : '',
       ]
@@ -129,14 +148,14 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
   const formTabs = [
     {
       id: 'prijava',
-      label: 'Online prijava ekipe',
-      badge: 'Brza prijava',
+      label: 'Prijava ekipe na natjecanje',
+      badge: 'Ekipe u RH',
       content: (
         <form ref={regFormRef} onSubmit={handleRegistrationSubmit} className="form-grid">
           <div className="field field--full">
-            <label htmlFor="reg-competition">Odaberite ligu ili turnir *</label>
+            <label htmlFor="reg-competition">Odaberite natjecanje ili program *</label>
             <span id="reg-comp-hint" className="field__hint">
-              Odaberite natjecanje za koje prijavljujete svoju momčad.
+              Odaberite program ili turnir za koji iskazujete interes odnosno prijavljujete momčad.
             </span>
             <select
               id="reg-competition"
@@ -147,26 +166,24 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
               aria-describedby="reg-comp-hint"
               data-error="reg-competition-error"
             >
-              {competitions
-                .filter((c) => c.status !== 'zavrseno')
-                .map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.title} ({c.statusLabel} – {c.entryFee})
-                  </option>
-                ))}
+              {openCompetitions.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title} ({c.statusLabel})
+                </option>
+              ))}
             </select>
             <div id="reg-competition-error" className="field__error">
               <span role="img" aria-label="Greška">
                 ❌
               </span>{' '}
-              Molimo odaberite željeno natjecanje s popisa.
+              Molimo odaberite željeni program ili natjecanje.
             </div>
           </div>
 
           <div className="field">
-            <label htmlFor="reg-team">Naziv ekipe *</label>
+            <label htmlFor="reg-team">Naziv ekipe ili kluba *</label>
             <span id="reg-team-hint" className="field__hint">
-              Npr. MNK Gornji Grad ili naziv sponzora/kvarta (min. 2 znaka).
+              Unesite puni naziv momčadi, udruge ili škole nogometa (min. 2 znaka).
             </span>
             <input
               type="text"
@@ -182,14 +199,14 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
               <span role="img" aria-label="Greška">
                 ❌
               </span>{' '}
-              Unesite službeni naziv ekipe (najmanje 2 znaka).
+              Unesite naziv ekipe (najmanje 2 znaka).
             </div>
           </div>
 
           <div className="field">
-            <label htmlFor="reg-city">Mjesto / Kvart / Općina *</label>
+            <label htmlFor="reg-city">Grad / Općina / Županija *</label>
             <span id="reg-city-hint" className="field__hint">
-              Npr. Križevci, Sv. Ivan Žabno, Kalnik, Koprivnica...
+              Prihvaćamo prijave i inicijative iz svih krajeva Hrvatske.
             </span>
             <input
               type="text"
@@ -205,14 +222,14 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
               <span role="img" aria-label="Greška">
                 ❌
               </span>{' '}
-              Unesite mjesto ili kvart iz kojeg ekipa dolazi.
+              Unesite grad ili mjesto iz kojeg ekipa dolazi.
             </div>
           </div>
 
           <div className="field">
             <label htmlFor="reg-captain">Ime i prezime voditelja ekipe *</label>
             <span id="reg-captain-hint" className="field__hint">
-              Osoba za kontakt i službenu WhatsApp grupu kapetana.
+              Kontakt osoba za komunikaciju s organizatorima.
             </span>
             <input
               type="text"
@@ -228,14 +245,14 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
               <span role="img" aria-label="Greška">
                 ❌
               </span>{' '}
-              Unesite ime i prezime voditelja ili kapetana ekipe.
+              Unesite ime i prezime voditelja ekipe.
             </div>
           </div>
 
           <div className="field">
-            <label htmlFor="reg-phone">Broj mobitela voditelja *</label>
+            <label htmlFor="reg-phone">Kontakt telefon / mobitel *</label>
             <span id="reg-phone-hint" className="field__hint">
-              Format: +385 98 123 4567 ili 098 123 4567
+              Format: +385 98 123 4567 ili 091 123 4567
             </span>
             <input
               type="tel"
@@ -256,9 +273,9 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
           </div>
 
           <div className="field">
-            <label htmlFor="reg-email">E-mail adresa *</label>
+            <label htmlFor="reg-email">E-pošta *</label>
             <span id="reg-email-hint" className="field__hint">
-              Format: ime.prezime@primjer.hr (za potvrdu i upute)
+              Format: ime.prezime@domena.hr
             </span>
             <input
               type="email"
@@ -273,33 +290,33 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
               <span role="img" aria-label="Greška">
                 ❌
               </span>{' '}
-              Unesite valjanu e-mail adresu u formatu korisnik@domena.hr.
+              Unesite valjanu adresu e-pošte.
             </div>
           </div>
 
           <div className="field">
-            <label htmlFor="reg-players">Okvirni broj igrača u rosteru</label>
+            <label htmlFor="reg-players">Okvirni broj igrača</label>
             <span id="reg-players-hint" className="field__hint">
-              Točan popis igrača možete predati do prve utakmice.
+              Konačan popis igrača dostavlja se prije početka natjecanja.
             </span>
-            <select id="reg-players" name="playersCount" defaultValue="10" aria-describedby="reg-players-hint">
+            <select id="reg-players" name="playersCount" defaultValue="9 – 12 igrača" aria-describedby="reg-players-hint">
               <option value="6 – 8 igrača">6 – 8 igrača</option>
-              <option value="9 – 10 igrača">9 – 10 igrača</option>
-              <option value="11 – 12 igrača">11 – 12 igrača</option>
-              <option value="13 – 15 igrača (liga)">13 – 15 igrača (liga)</option>
+              <option value="9 – 12 igrača">9 – 12 igrača</option>
+              <option value="13 – 15 igrača">13 – 15 igrača</option>
+              <option value="Više kategorija (škola nogometa)">Više kategorija (škola nogometa)</option>
             </select>
           </div>
 
           <div className="field field--full">
-            <label htmlFor="reg-notes">Boja dresova ili napomena za termine (neobavezno)</label>
+            <label htmlFor="reg-notes">Napomena ili prijedlog (neobavezno)</label>
             <span id="reg-notes-hint" className="field__hint">
-              Navedite primarnu boju dresova ili zamolbu oko satnice u skupini.
+              Boja dresova, željeni termin ili dodatne informacije o momčadi.
             </span>
             <textarea
               id="reg-notes"
               name="notes"
               aria-describedby="reg-notes-hint"
-              placeholder="Npr. Crno-zeleni dresovi; molimo kasniji termin petkom zbog putovanja..."
+              placeholder="Upišite dodatne informacije po želji..."
             />
           </div>
 
@@ -313,22 +330,22 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
                 data-error="reg-rules-error"
               />
               <label htmlFor="reg-rules">
-                Potvrđujem da je ekipa upoznata s općim propozicijama Udruge "Nogometne lige i
-                turniri" Križevci te da igrači nastupaju na vlastitu odgovornost. *
+                Potvrđujem prihvaćanje načela fair playa i općih pravila natjecanja u organizaciji
+                udruge Nogometne lige i turniri. *
               </label>
             </div>
             <div id="reg-rules-error" className="field__error">
               <span role="img" aria-label="Greška">
                 ❌
               </span>{' '}
-              Za slanje prijave potrebno je prihvatiti propozicije natjecanja.
+              Potrebno je označiti potvrdu prije slanja prijave.
             </div>
           </div>
 
           <div className="field--full" style={{ marginTop: '0.5rem' }}>
             <button type="submit" className="btn btn--primary btn--lg">
               <Trophy size={19} aria-hidden="true" />
-              <span>Generiraj prijavu i upute za kotizaciju</span>
+              <span>Pripremi prijavnicu ekipe</span>
             </button>
           </div>
         </form>
@@ -336,7 +353,8 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
     },
     {
       id: 'upit',
-      label: 'Opći upit, sponzorstva i članstvo',
+      label: 'Pokretanje lige, partnerstvo i kontakt',
+      badge: 'Suradnja u RH',
       content: (
         <div>
           {contactSent && (
@@ -352,16 +370,15 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
                 border: '1px solid #86efac',
               }}
             >
-              ✅ Hvala na poruci! Vaš upit je pripremljen – možete nas kontaktirati i izravno na{' '}
-              {associationInfo.email} ili {associationInfo.phone}.
+              ✅ Vaša poruka je pripremljena za slanje na {associationInfo.email}!
             </div>
           )}
 
           <form ref={contactFormRef} onSubmit={handleContactSubmit} className="form-grid">
             <div className="field">
-              <label htmlFor="cnt-name">Vaše ime i prezime / Tvrtka *</label>
+              <label htmlFor="cnt-name">Vaše ime i prezime / Organizacija *</label>
               <span id="cnt-name-hint" className="field__hint">
-                Unesite ime kontakt osobe ili naziv organizacije.
+                Ime kontakt osobe, kluba, grada/općine ili tvrtke.
               </span>
               <input
                 type="text"
@@ -377,12 +394,12 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
                 <span role="img" aria-label="Greška">
                   ❌
                 </span>{' '}
-                Unesite svoje ime i prezime (najmanje 2 znaka).
+                Unesite svoje ime i prezime ili naziv organizacije.
               </div>
             </div>
 
             <div className="field">
-              <label htmlFor="cnt-email">E-mail adresa za odgovor *</label>
+              <label htmlFor="cnt-email">Adresa e-pošte za odgovor *</label>
               <span id="cnt-email-hint" className="field__hint">
                 Format: ime@domena.hr
               </span>
@@ -399,28 +416,31 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
                 <span role="img" aria-label="Greška">
                   ❌
                 </span>{' '}
-                Unesite ispravnu e-mail adresu za povratni odgovor.
+                Unesite ispravnu adresu e-pošte.
               </div>
             </div>
 
             <div className="field field--full">
-              <label htmlFor="cnt-topic">Tema upita</label>
-              <select id="cnt-topic" name="topic" defaultValue="Sponzorstvo i donacije">
-                <option value="Sponzorstvo i donacije">Sponzorstvo i partnerstvo s udrugom</option>
-                <option value="Učlanjenje / Volontiranje / Suđenje">
-                  Učlanjenje u udrugu, suđenje ili volontiranje
+              <label htmlFor="cnt-topic">Područje suradnje</label>
+              <select id="cnt-topic" name="topic" defaultValue="Pokretanje lige ili turnira u našem gradu">
+                <option value="Pokretanje lige ili turnira u našem gradu">
+                  Pokretanje lige ili turnira u našem gradu / općini
                 </option>
-                <option value="Upit škola nogometa (Mladi)">
-                  Upit škola nogometa (Kup mladih nada)
+                <option value="Povezivanje sportskih udruga i klubova">
+                  Povezivanje sportskih organizacija i kup prvaka
                 </option>
-                <option value="Ostalo">Opći upit / Prijedlog</option>
+                <option value="Sponzorstvo i donacije">Sponzorstvo i partnerstvo</option>
+                <option value="Dopuna arhive natjecanja">
+                  Dostava starih rezultata, zapisnika ili fotografija za arhivu
+                </option>
+                <option value="Ostalo">Opći upit udruzi</option>
               </select>
             </div>
 
             <div className="field field--full">
-              <label htmlFor="cnt-msg">Vaša poruka *</label>
+              <label htmlFor="cnt-msg">Poruka *</label>
               <span id="cnt-msg-hint" className="field__hint">
-                Napišite detalje svog prijedloga ili pitanja (najmanje 10 znakova).
+                Opišite svoj prijedlog suradnje ili upit (najmanje 10 znakova).
               </span>
               <textarea
                 id="cnt-msg"
@@ -441,7 +461,7 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
             <div className="field--full">
               <button type="submit" className="btn btn--primary">
                 <Send size={17} aria-hidden="true" />
-                <span>Pošalji upit udruzi</span>
+                <span>Pošalji upit na e-poštu udruge</span>
               </button>
             </div>
           </form>
@@ -454,13 +474,13 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
     <>
       <section className="page-banner">
         <div className="container">
-          <p className="eyebrow eyebrow--gold">Prijave ekipa i informacije</p>
+          <p className="eyebrow eyebrow--gold">Prijave, suradnja i kontakt</p>
           <h1 id="page-main-heading" tabIndex={-1} className="page-banner__title">
-            Online prijava i kontakt
+            Prijava ekipe i kontakt s udrugom
           </h1>
           <p className="page-banner__lead">
-            Prijavite svoju ekipu na željenu ligu ili turnir u nekoliko klikova ili nam se obratite
-            za sponzorstva, učlanjenje i suradnju na području Križevaca.
+            Prijavite momčad na nadolazeća natjecanja ili nam se javite radi organizacije lige i
+            turnira u vašoj sredini bilo gdje u Hrvatskoj.
           </p>
         </div>
       </section>
@@ -485,7 +505,6 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
               />
             </div>
 
-            {/* Desni kontakt panel */}
             <aside style={{ display: 'grid', gap: '1.25rem' }}>
               <div
                 style={{
@@ -498,13 +517,26 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
                 }}
               >
                 <span className="eyebrow eyebrow--gold" style={{ marginBottom: 0 }}>
-                  Izravni kontakt
+                  Službeni podaci
                 </span>
                 <h2 style={{ fontSize: '1.6rem', textTransform: 'uppercase' }}>
-                  {associationInfo.fullName}
+                  {associationInfo.name}
                 </h2>
+                <p style={{ fontSize: '0.86rem', color: '#9bd5be', marginTop: '-0.55rem' }}>
+                  {associationInfo.englishName}
+                </p>
 
                 <div style={{ display: 'grid', gap: '0.85rem', fontSize: '0.92rem' }}>
+                  <div style={{ display: 'flex', gap: '0.65rem' }}>
+                    <Users size={18} aria-hidden="true" style={{ color: '#6ee7b7', flexShrink: 0 }} />
+                    <div>
+                      <strong>Voditelji udruge:</strong>
+                      <div style={{ color: 'var(--text-on-dark-muted)' }}>
+                        Alen Miholić i Matija Vuković
+                      </div>
+                    </div>
+                  </div>
+
                   <div style={{ display: 'flex', gap: '0.65rem' }}>
                     <MapPin size={18} aria-hidden="true" style={{ color: '#6ee7b7', flexShrink: 0 }} />
                     <div>
@@ -516,11 +548,23 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
                   </div>
 
                   <div style={{ display: 'flex', gap: '0.65rem' }}>
-                    <Phone size={18} aria-hidden="true" style={{ color: '#6ee7b7', flexShrink: 0 }} />
+                    <Globe size={18} aria-hidden="true" style={{ color: '#6ee7b7', flexShrink: 0 }} />
                     <div>
-                      <strong>Voditelj natjecanja / Tajništvo:</strong>
+                      <strong>Područje djelovanja:</strong>
                       <div style={{ color: 'var(--text-on-dark-muted)' }}>
-                        {associationInfo.phone} • {associationInfo.secondaryPhone}
+                        Cijela Hrvatska – povezivanje i organizacija liga i turnira
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.65rem' }}>
+                    <ShieldCheck size={18} aria-hidden="true" style={{ color: '#6ee7b7', flexShrink: 0 }} />
+                    <div>
+                      <strong>Registracijski podaci:</strong>
+                      <div style={{ color: 'var(--text-on-dark-muted)' }}>
+                        OIB: {associationInfo.oib}
+                        <br />
+                        Registar udruga RH: {associationInfo.registryNo} (20.04.2026.)
                       </div>
                     </div>
                   </div>
@@ -528,57 +572,22 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
                   <div style={{ display: 'flex', gap: '0.65rem' }}>
                     <Mail size={18} aria-hidden="true" style={{ color: '#6ee7b7', flexShrink: 0 }} />
                     <div>
-                      <strong>E-mail adrese:</strong>
-                      <div style={{ color: 'var(--text-on-dark-muted)' }}>
+                      <strong>Službena e-pošta:</strong>
+                      <div style={{ color: 'var(--text-on-dark-muted)', wordBreak: 'break-all' }}>
                         {associationInfo.email}
-                        <br />
-                        {associationInfo.registrationEmail}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '0.65rem' }}>
-                    <Clock size={18} aria-hidden="true" style={{ color: '#6ee7b7', flexShrink: 0 }} />
-                    <div>
-                      <strong>Dostupnost za upite:</strong>
-                      <div style={{ color: 'var(--text-on-dark-muted)' }}>
-                        {associationInfo.workingHours}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div
-                  style={{
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid rgba(255, 255, 255, 0.14)',
-                  }}
+                <button
+                  type="button"
+                  className="btn btn--outline-light btn--sm"
+                  onClick={copyEmail}
                 >
-                  <div style={{ fontSize: '0.78rem', color: '#fde047', fontWeight: 700 }}>
-                    PODACI ZA UPLATU KOTIZACIJE
-                  </div>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      marginTop: '0.25rem',
-                      fontSize: '0.95rem',
-                      wordBreak: 'break-all',
-                    }}
-                  >
-                    {associationInfo.iban}
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn--outline-light btn--sm"
-                    style={{ marginTop: '0.65rem' }}
-                    onClick={copyIban}
-                  >
-                    {copiedIban ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
-                    <span>{copiedIban ? 'IBAN kopiran!' : 'Kopiraj IBAN udruge'}</span>
-                  </button>
-                </div>
+                  {copiedEmail ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}
+                  <span>{copiedEmail ? 'E-pošta je kopirana!' : 'Kopiraj adresu e-pošte'}</span>
+                </button>
               </div>
             </aside>
           </div>
@@ -590,8 +599,8 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
         <div className="container">
           <div className="section-head">
             <div>
-              <p className="eyebrow">Pitanja kapetana i sudionika</p>
-              <h2 className="section-title">Često postavljana pitanja (FAQ)</h2>
+              <p className="eyebrow">Pitanja i odgovori</p>
+              <h2 className="section-title">Često postavljana pitanja</h2>
             </div>
           </div>
 
@@ -625,19 +634,18 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
         </div>
       </section>
 
-      {/* MODAL POTVRDE PRIJAVE */}
       <ModalDialog
         open={Boolean(submission)}
         onClose={() => setSubmission(null)}
-        title="Prijavnica ekipe uspješno je pripremljena!"
+        title="Prijavnica ekipe je pripremljena!"
         subtitle={submission ? `Evidencijski kôd: ${submission.refCode}` : undefined}
       >
         {submission && (
           <div style={{ display: 'grid', gap: '1rem' }}>
             <p style={{ color: 'var(--text-secondary)' }}>
-              Sačuvali smo sažetak prijave za ekipu <strong>{submission.teamName}</strong> (
-              {submission.cityOrigin}). Za potvrdu mjesta u ždrijebu pošaljite pripremljenu
-              prijavnicu jednim klikom na službeni e-mail udruge i izvršite uplatu kotizacije:
+              Pripremili smo sažetak prijave za momčad <strong>{submission.teamName}</strong> (
+              {submission.cityOrigin}). Klikom na gumb ispod otvara se vaša aplikacija za e-poštu s
+              ispunjenim podacima za slanje na <strong>{associationInfo.email}</strong>:
             </p>
 
             <div
@@ -652,33 +660,27 @@ function RegistrationAndContactContent({ searchParams }: { searchParams: URLSear
               }}
             >
               <div>
-                <strong>Natjecanje:</strong> {submission.competitionTitle}
+                <strong>Natjecanje / program:</strong> {submission.competitionTitle}
               </div>
               <div>
                 <strong>Voditelj ekipe:</strong> {submission.captainName} ({submission.phone})
               </div>
               <div>
-                <strong>Primatelj uplate:</strong> {associationInfo.fullName}
+                <strong>Grad / mjesto:</strong> {submission.cityOrigin}
               </div>
               <div>
-                <strong>IBAN:</strong> {associationInfo.iban}
-              </div>
-              <div>
-                <strong>Iznos kotizacije:</strong> {submission.entryFee}
-              </div>
-              <div>
-                <strong>Opis plaćanja:</strong> Kotizacija – {submission.teamName} ({submission.refCode})
+                <strong>Primatelj prijave:</strong> {associationInfo.email}
               </div>
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
               <a href={buildMailtoHref(submission)} className="btn btn--primary">
                 <Mail size={17} aria-hidden="true" />
-                <span>Pošalji prijavnicu e-mailom</span>
+                <span>Pošalji prijavu e-poštom</span>
               </a>
-              <button type="button" className="btn btn--outline" onClick={copyIban}>
+              <button type="button" className="btn btn--outline" onClick={copyEmail}>
                 <Copy size={17} aria-hidden="true" />
-                <span>{copiedIban ? 'IBAN je kopiran!' : 'Kopiraj IBAN'}</span>
+                <span>{copiedEmail ? 'E-pošta kopirana!' : 'Kopiraj e-poštu udruge'}</span>
               </button>
             </div>
           </div>

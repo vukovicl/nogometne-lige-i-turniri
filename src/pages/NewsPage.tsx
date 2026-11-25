@@ -4,13 +4,12 @@ import { ArrowLeft, ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import { newsArticles } from '../data/siteData';
 import { assetUrl } from '../utils/assetUrl';
 
-const categories = ['Sve', 'Prijave', 'Izvještaj', 'Mladi', 'Obavijest'] as const;
+const categories = ['Sve', 'Izvještaj', 'Novosti', 'Arhiva', 'Udruga'] as const;
 
 export function NewsPage() {
   const { slug } = useParams<{ slug: string }>();
   const [selectedCategory, setSelectedCategory] = useState<string>('Sve');
 
-  // Prikaz pojedinačnog članka (/vijesti/:slug)
   if (slug) {
     const article = newsArticles.find((a) => a.slug === slug);
 
@@ -22,7 +21,7 @@ export function NewsPage() {
               Članak nije pronađen
             </h1>
             <Link to="/vijesti" viewTransition className="btn btn--primary" style={{ marginTop: '1.25rem' }}>
-              Povratak na sve vijesti
+              Povratak na sve novosti
             </Link>
           </div>
         </section>
@@ -49,7 +48,7 @@ export function NewsPage() {
               }}
             >
               <ArrowLeft size={16} aria-hidden="true" />
-              <span>Sve vijesti i obavijesti</span>
+              <span>Sve novosti i priče iz arhive</span>
             </Link>
             <div style={{ marginBottom: '0.65rem' }}>
               <span className="status-chip status-chip--aktivno">{article.category}</span>
@@ -136,10 +135,10 @@ export function NewsPage() {
               >
                 <Link to="/vijesti" viewTransition className="btn btn--outline btn--sm">
                   <ArrowLeft size={16} aria-hidden="true" />
-                  <span>Natrag na vijesti</span>
+                  <span>Natrag na novosti</span>
                 </Link>
                 <Link to="/prijava-i-kontakt" viewTransition className="btn btn--primary btn--sm">
-                  Prijavi ekipu ili pošalji upit
+                  Prijava ili suradnja
                 </Link>
               </div>
             </article>
@@ -147,7 +146,7 @@ export function NewsPage() {
             {otherArticles.length > 0 && (
               <div style={{ marginTop: '3rem' }}>
                 <h2 className="section-title" style={{ fontSize: '1.8rem', marginBottom: '1.25rem' }}>
-                  Ostale obavijesti udruge
+                  Povezane objave
                 </h2>
                 <div className="cards-grid">
                   {otherArticles.map((other) => (
@@ -174,7 +173,6 @@ export function NewsPage() {
     );
   }
 
-  // Popis svih vijesti (/vijesti)
   const filteredArticles =
     selectedCategory === 'Sve'
       ? newsArticles
@@ -184,20 +182,20 @@ export function NewsPage() {
     <>
       <section className="page-banner">
         <div className="container">
-          <p className="eyebrow eyebrow--gold">Službeno glasilo udruge</p>
+          <p className="eyebrow eyebrow--gold">Novosti i povijesni zapisi</p>
           <h1 id="page-main-heading" tabIndex={-1} className="page-banner__title">
-            Vijesti, izvještaji i obavijesti
+            Novosti, izvještaji i arhiva
           </h1>
           <p className="page-banner__lead">
-            Pratite pozive za prijavu ekipa, izvještaje s odigranih kola u Križevcima, odluke
-            povjerenika natjecanja i najave novih sportskih događanja.
+            Aktualne vijesti udruge Nogometne lige i turniri, izvještaji sa završnica natjecanja te
+            odabrani zapisi iz arhive sezona 2015. i 2016.
           </p>
         </div>
       </section>
 
       <section className="section">
         <div className="container">
-          <div className="filter-bar" role="group" aria-label="Filtriraj vijesti po kategoriji">
+          <div className="filter-bar" role="group" aria-label="Filtriraj novosti po kategoriji">
             {categories.map((cat) => (
               <button
                 key={cat}

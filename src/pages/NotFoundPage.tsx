@@ -16,7 +16,7 @@ export function NotFoundPage() {
         </h1>
         <p style={{ color: 'var(--text-secondary)', marginTop: '0.75rem' }}>
           Moguće je da je poveznica zastarjela ili je upisana pogrešna adresa. Vratite se na
-          početnu stranicu ili pregledajte aktualna natjecanja u Križevcima.
+          početnu stranicu ili pregledajte programe i natjecanja udruge.
         </p>
         <div
           style={{

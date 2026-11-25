@@ -3,13 +3,6 @@ import { resolve } from 'node:path'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
 
-/**
- * Automatsko određivanje bazne putanje:
- * - Ako postoji `VITE_BASE_PATH`, koristi ga.
- * - Na GitHub Actions (ako ne postoji `public/CNAME` i repozitorij nije `<user>.github.io`),
- *   automatski postavlja `/<ime-repozitorija>/` za GitHub Pages.
- * - Lokalno, na Netlifyju, Vercelu, Cloudflare Pagesu ili vlastitoj domeni koristi `/`.
- */
 function resolveBasePath(): string {
   if (process.env.VITE_BASE_PATH) {
     return process.env.VITE_BASE_PATH
@@ -24,25 +17,22 @@ function resolveBasePath(): string {
   return '/'
 }
 
-/**
- * Generira statičke `index.html` datoteke za sve podstranice te `404.html` i `.nojekyll`
- * kako bi svaka ruta na GitHub Pagesu vraćala HTTP 200 OK čak i kod izravnog otvaranja linka.
- */
 function githubPagesMultiRoutePlugin(): Plugin {
   const preRenderedRoutes = [
     'o-udruzi',
     'natjecanja',
     'natjecanja/malonogometna-liga-dobrosusjedski-odnosi',
-    'natjecanja/zimski-malonogometni-turnir-krizevci',
-    'natjecanja/rekreativna-i-veteranska-liga-krizevci',
-    'natjecanja/kup-mladih-nada-prigorja',
-    'natjecanja/ljetni-nocni-turnir-srce-prigorja',
+    'natjecanja/organizacija-rekreativnih-liga-hrvatska',
+    'natjecanja/malonogometni-kupovi-i-turniri',
+    'natjecanja/turniri-za-djecu-i-mlade',
+    'natjecanja/arhiva-dobrosusjedski-odnosi-2015-2016',
     'raspored-i-tablice',
     'vijesti',
-    'vijesti/allplan-croatia-fermoy-osvojio-malonogometnu-ligu-dobrosusjedski-odnosi',
-    'vijesti/otvorene-prijave-za-zimski-malonogometni-turnir-krizevci-kup',
-    'vijesti/najava-proljetnog-kupa-mladih-nada-prigorja-2027',
-    'vijesti/objavljen-azurirani-pravilnik-i-upute-za-registraciju-igraca',
+    'vijesti/allplan-croatia-fermoy-prvak-dobrosusjedskih-odnosa-2026',
+    'vijesti/dobrosusjedski-odnosi-ponovno-na-krizevackom-rasporedu',
+    'vijesti/iz-arhive-srpanj-2016-sedamnaest-momcadi-u-dvije-jakosne-skupine',
+    'vijesti/iz-arhive-rujan-2015-trojica-igraca-na-popisu-za-europsko-prvenstvo',
+    'vijesti/vizija-udruge-nogometne-lige-i-turniri-diljem-hrvatske',
     'galerija',
     'prijava-i-kontakt',
   ]

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  Award,
   Building2,
+  CheckCircle2,
   Download,
   Eye,
   FileText,
@@ -13,6 +15,7 @@ import {
 import {
   associationInfo,
   documents,
+  season2026Awards,
   type AssociationDocument,
 } from '../data/siteData';
 import { assetUrl } from '../utils/assetUrl';
@@ -23,9 +26,10 @@ export function AboutPage() {
 
   const handleDownloadSample = (doc: AssociationDocument) => {
     const content = [
-      associationInfo.fullName.toUpperCase(),
+      `UDRUGA: ${associationInfo.name.toUpperCase()} (${associationInfo.englishName})`,
       `Sjedište: ${associationInfo.address}`,
-      `OIB: ${associationInfo.oib} | IBAN: ${associationInfo.iban}`,
+      `OIB: ${associationInfo.oib} | Registarski broj: ${associationInfo.registryNo}`,
+      `E-pošta: ${associationInfo.email}`,
       '============================================================',
       '',
       doc.title.toUpperCase(),
@@ -34,17 +38,13 @@ export function AboutPage() {
       doc.summary,
       '',
       ...doc.previewText,
-      '',
-      '------------------------------------------------------------',
-      'Napomena: Ovo je ogledni predložak dokumenta generiran na web stranici.',
-      'Prave PDF dokumente možete postaviti u mapu public/docs/ i povezati u src/data/siteData.ts.',
     ].join('\n');
 
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${doc.id}-predlozak.txt`;
+    a.download = `${doc.id}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -53,128 +53,310 @@ export function AboutPage() {
     <>
       <section className="page-banner">
         <div className="container">
-          <p className="eyebrow eyebrow--gold">O nama • Križevci i Prigorje</p>
+          <p className="eyebrow eyebrow--gold">O udruzi i povijesti natjecanja</p>
           <h1 id="page-main-heading" tabIndex={-1} className="page-banner__title">
-            {associationInfo.fullName}
+            Nogometne lige i turniri i priča o Dobrosusjedskim odnosima
           </h1>
           <p className="page-banner__lead">
-            Neprofitna sportska udruga posvećena organizaciji malonogometnih liga, dvoranskih
-            turnira, veteranskih susreta i sportskih manifestacija za djecu i mlade na području
-            Križevaca i okolice.
+            Upoznajte sportsku udrugu registriranu 2026. godine za razvoj amaterskog nogometa i
+            malog nogometa u Hrvatskoj te cjelovitu dokumentiranu povijest lige Dobrosusjedski
+            odnosi od 2015. godine do danas.
           </p>
         </div>
       </section>
 
-      {/* MISIJA I OSOBNA ISKAZNICA UDRUGE */}
+      {/* UVOD, UPISANE DJELATNOSTI I OSOBNA ISKAZNICA UDRUGE */}
       <section className="section">
         <div className="container">
-          <div className="cards-grid--2 cards-grid" style={{ alignItems: 'center' }}>
-            <div style={{ display: 'grid', gap: '1.1rem' }}>
+          <div className="cards-grid--2 cards-grid" style={{ alignItems: 'start' }}>
+            <div style={{ display: 'grid', gap: '1.15rem' }}>
               <p className="eyebrow" style={{ marginBottom: 0 }}>
-                Naša priča i poslanje
+                Misija i djelatnosti udruge
               </p>
               <h2 className="section-title">
-                Više od nogometa – mjesto susreta cijele križevačke sportske zajednice
+                Platforma za organizaciju nogometnih liga i turnira diljem Hrvatske
               </h2>
               <p style={{ color: 'var(--text-secondary)' }}>
-                Udruga <strong>"{associationInfo.name}"</strong> nastala je iz želje da bogata
-                malonogometna tradicija Križevaca i Prigorja dobije moderan, cjelogodišnji i
-                profesionalno vođen organizacijski okvir. Od ljetnih večeri pod reflektorima do
-                punih tribina školsko-sportske dvorane zimi, svako naše natjecanje spaja sportski
-                natjecateljski duh i prijateljsko druženje.
-              </p>
-              <p style={{ color: 'var(--text-secondary)' }}>
-                Posebnu pažnju posvećujemo uključivanju svih dobnih skupina: od najmlađih polaznika
-                škola nogometa koji osvajaju svoje prve medalje, preko seniorskih i kvartovskih
-                momčadi, pa sve do rekreativaca i veterana 35+.
+                <strong>Nogometne lige i turniri</strong> (eng.{' '}
+                <em>{associationInfo.englishName}</em>) sportska je udruga sa sjedištem u Gračini
+                80, osnovana 23. ožujka 2026. te upisana u Registar udruga Republike Hrvatske 20.
+                travnja 2026. godine, s vizijom razvoja, digitalizacije i povezivanja amaterskih i
+                rekreativnih natjecanja na području cijele Hrvatske.
               </p>
 
               <div
                 style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))',
-                  gap: '0.85rem',
-                  marginTop: '0.5rem',
+                  background: 'var(--bg-subtle)',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: '1.25rem',
                 }}
               >
-                <div
+                <h3
                   style={{
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'var(--pitch-50)',
-                    border: '1px solid var(--border-strong)',
+                    fontSize: '1.2rem',
+                    textTransform: 'uppercase',
+                    marginBottom: '0.75rem',
                   }}
                 >
-                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--pitch-700)' }}>
-                    SLUŽBENI PODACI UDRUGE
-                  </div>
-                  <div style={{ fontWeight: 700, marginTop: '0.25rem' }}>
-                    OIB: {associationInfo.oib}
-                  </div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Registar udruga RH: {associationInfo.registryNo}
-                  </div>
-                </div>
-
-                <div
+                  Upisane djelatnosti udruge
+                </h3>
+                <ul
                   style={{
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'var(--bg-subtle)',
-                    border: '1px solid var(--border-light)',
+                    listStyle: 'none',
+                    margin: 0,
+                    padding: 0,
+                    display: 'grid',
+                    gap: '0.55rem',
                   }}
                 >
-                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--pitch-700)' }}>
-                    ŽIRO RAČUN (IBAN)
-                  </div>
-                  <div style={{ fontWeight: 700, marginTop: '0.25rem', wordBreak: 'break-all' }}>
-                    {associationInfo.iban}
-                  </div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Za kotizacije, članarine i donacije
-                  </div>
-                </div>
+                  {associationInfo.registeredActivities.map((act) => (
+                    <li
+                      key={act}
+                      style={{ display: 'flex', alignItems: 'flex-start', gap: '0.55rem' }}
+                    >
+                      <CheckCircle2
+                        size={18}
+                        aria-hidden="true"
+                        style={{ color: 'var(--pitch-700)', flexShrink: 0, marginTop: '0.2rem' }}
+                      />
+                      <span>{act}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
 
-            <div>
-              <div
-                style={{
-                  borderRadius: 'var(--radius-xl)',
-                  overflow: 'hidden',
-                  boxShadow: 'var(--shadow-lg)',
-                  border: '1px solid var(--border-light)',
-                }}
-              >
-                <img
-                  src={assetUrl('images/trophy-ceremony.jpg')}
-                  alt="Pehari i medalje na završnici turnira Udruge Nogometne lige i turniri Križevci"
-                  width={960}
-                  height={540}
-                  loading="lazy"
-                />
-              </div>
+            {/* Službena tablica podataka o udruzi */}
+            <div
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-strong)',
+                borderRadius: 'var(--radius-lg)',
+                padding: '1.5rem',
+                boxShadow: 'var(--shadow-sm)',
+              }}
+            >
+              <span className="eyebrow">Registar udruga Republike Hrvatske</span>
+              <h2 style={{ fontSize: '1.6rem', textTransform: 'uppercase', marginBottom: '1rem' }}>
+                Podaci o udruzi i kontakt
+              </h2>
+              <dl style={{ margin: 0, display: 'grid', gap: '0.65rem' }}>
+                {associationInfo.registryFacts.map((fact) => (
+                  <div
+                    key={fact.label}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(8.5rem, 1fr) 1.4fr',
+                      gap: '0.75rem',
+                      paddingBlockEnd: '0.6rem',
+                      borderBlockEnd: '1px solid var(--border-light)',
+                      fontSize: '0.92rem',
+                    }}
+                  >
+                    <dt style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{fact.label}</dt>
+                    <dd style={{ margin: 0, fontWeight: 700, wordBreak: 'break-word' }}>
+                      {fact.label === 'E-pošta' ? (
+                        <a
+                          href={`mailto:${fact.value}`}
+                          style={{ color: 'var(--pitch-700)', textDecoration: 'underline' }}
+                        >
+                          {fact.value}
+                        </a>
+                      ) : (
+                        fact.value
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </div>
         </div>
       </section>
 
-      {/* RAZVOJNI PUT (TIMELINE) & TIJELA UDRUGE */}
+      {/* VODITELJI UDRUGE: ALEN MIHOLIĆ I MATIJA VUKOVIĆ */}
       <section className="section section--subtle">
         <div className="container">
-          <div className="cards-grid--2 cards-grid" style={{ alignItems: 'start' }}>
+          <div className="section-head">
             <div>
-              <p className="eyebrow">Kronologija rada</p>
-              <h2 className="section-title" style={{ marginBottom: '1.5rem' }}>
-                Kako smo rasli kroz sezone
-              </h2>
+              <p className="eyebrow">Vodstvo i organizacija</p>
+              <h2 className="section-title">Voditelji udruge</h2>
+              <p className="section-subtitle">
+                Iskustvo dugogodišnje organizacije malonogometnih natjecanja spojeno sa suvremenim
+                vođenjem liga i turnira.
+              </p>
+            </div>
+          </div>
+
+          <div className="cards-grid--2 cards-grid">
+            {associationInfo.boardMembers.map((member) => (
+              <article
+                key={member.name}
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '1.5rem',
+                  boxShadow: 'var(--shadow-sm)',
+                  display: 'grid',
+                  gap: '0.6rem',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                    gap: '0.5rem',
+                    alignItems: 'center',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      color: 'var(--pitch-700)',
+                    }}
+                  >
+                    {member.role}
+                  </span>
+                  <a
+                    href={`mailto:${member.contact}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      fontSize: '0.84rem',
+                      color: 'var(--text-muted)',
+                    }}
+                  >
+                    <Mail size={14} aria-hidden="true" />
+                    <span>{member.contact}</span>
+                  </a>
+                </div>
+                <h3 style={{ fontSize: '1.6rem', textTransform: 'uppercase' }}>{member.name}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{member.bio}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CJELOVITA PRIČA O UDRUZI I DOBROSUSJEDSKIM ODNOSIMA */}
+      <section className="section">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <p className="eyebrow">Povijesni pregled i arhiva</p>
+              <h2 className="section-title">Priča o udruzi i ligi Dobrosusjedski odnosi</h2>
+              <p className="section-subtitle">
+                Razlikujemo povijest same malonogometne lige (dokumentirane na križevačkom području
+                najmanje od 2015. godine) od povijesti današnje udruge registrirane u travnju 2026.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gap: '1.5rem' }}>
+            {associationInfo.storySections.map((sec) => (
+              <article
+                key={sec.id}
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-light)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: 'clamp(1.35rem, 3vw, 2rem)',
+                  display: 'grid',
+                  gap: '0.85rem',
+                }}
+              >
+                <span className="eyebrow" style={{ marginBottom: 0 }}>
+                  {sec.eyebrow}
+                </span>
+                <h3 style={{ fontSize: '1.65rem', textTransform: 'uppercase' }}>{sec.title}</h3>
+                {sec.paragraphs.map((p, idx) => (
+                  <p key={idx} style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
+                    {p}
+                  </p>
+                ))}
+              </article>
+            ))}
+          </div>
+
+          {/* Priznanja u sezoni 2026. + Kronologija */}
+          <div
+            className="cards-grid--2 cards-grid"
+            style={{ marginTop: '2.5rem', alignItems: 'start' }}
+          >
+            <div
+              style={{
+                background: 'var(--bg-dark)',
+                color: '#ffffff',
+                borderRadius: 'var(--radius-lg)',
+                padding: '1.6rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+                <Award size={22} aria-hidden="true" style={{ color: 'var(--gold-500)' }} />
+                <h3 style={{ fontSize: '1.55rem', textTransform: 'uppercase' }}>
+                  Priznanja u sezoni 2026.
+                </h3>
+              </div>
+              <p style={{ color: 'var(--text-on-dark-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                Dobitnici ekipnih i pojedinačnih nagrada Malonogometne lige Dobrosusjedski odnosi
+                Križevci 2026.:
+              </p>
+              <div style={{ display: 'grid', gap: '0.6rem' }}>
+                {season2026Awards.map((aw) => (
+                  <div
+                    key={aw.title}
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      justifyContent: 'space-between',
+                      gap: '0.5rem',
+                      padding: '0.7rem 0.9rem',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'rgba(255, 255, 255, 0.06)',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    <span style={{ color: '#9bd5be', fontWeight: 600 }}>{aw.title}</span>
+                    <strong style={{ textAlign: 'end' }}>
+                      {aw.winner}
+                      {aw.teamOrNote && aw.title.startsWith('Najbolji')
+                        ? `, ${aw.teamOrNote}`
+                        : ''}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: '1.25rem', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+                <img
+                  src={assetUrl('images/trophy-ceremony.jpg')}
+                  alt="Pehari i medalje za dobitnike priznanja"
+                  width={800}
+                  height={450}
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            <div>
+              <p className="eyebrow">Vremenska crta</p>
+              <h3 className="section-title" style={{ fontSize: '1.85rem', marginBottom: '1.25rem' }}>
+                Ključne točke iz arhive i rada udruge
+              </h3>
               <div className="timeline">
                 {associationInfo.timeline.map((item) => (
                   <div key={item.year} className="timeline__item">
                     <span className="eyebrow" style={{ marginBottom: '0.2rem' }}>
                       {item.year}
                     </span>
-                    <h3 style={{ fontSize: '1.3rem', textTransform: 'uppercase' }}>{item.title}</h3>
+                    <h4 style={{ fontSize: '1.25rem', textTransform: 'uppercase' }}>{item.title}</h4>
                     <p
                       style={{
                         color: 'var(--text-secondary)',
@@ -188,86 +370,17 @@ export function AboutPage() {
                 ))}
               </div>
             </div>
-
-            <div>
-              <p className="eyebrow">Uprava i organizacijski odbor</p>
-              <h2 className="section-title" style={{ marginBottom: '1.5rem' }}>
-                Ljudi iza natjecanja
-              </h2>
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                {associationInfo.boardMembers.map((member) => (
-                  <div
-                    key={member.role}
-                    style={{
-                      background: 'var(--bg-surface)',
-                      border: '1px solid var(--border-light)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: '1.2rem 1.35rem',
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        justifyContent: 'space-between',
-                        gap: '0.5rem',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: '0.78rem',
-                          fontWeight: 800,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.06em',
-                          color: 'var(--pitch-700)',
-                        }}
-                      >
-                        {member.role}
-                      </span>
-                      <a
-                        href={`mailto:${member.contact}`}
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.35rem',
-                          fontSize: '0.84rem',
-                          color: 'var(--text-muted)',
-                        }}
-                      >
-                        <Mail size={14} aria-hidden="true" />
-                        <span>{member.contact}</span>
-                      </a>
-                    </div>
-                    <h3 style={{ fontSize: '1.35rem', marginTop: '0.2rem' }}>{member.name}</h3>
-                    <p
-                      style={{
-                        fontSize: '0.9rem',
-                        color: 'var(--text-secondary)',
-                        marginTop: '0.35rem',
-                      }}
-                    >
-                      {member.bio}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* SPORTSKA INFRASTRUKTURA / TERENI */}
-      <section className="section">
+      {/* TERENI I NACIONALNO ŠIRENJE */}
+      <section className="section section--subtle">
         <div className="container">
           <div className="section-head">
             <div>
-              <p className="eyebrow">Lokacije odigravanja</p>
-              <h2 className="section-title">Dvorane i tereni u Križevcima i Prigorju</h2>
-              <p className="section-subtitle">
-                Sva natjecanja održavaju se na provjerenim sportskim terenima s osiguranom
-                infrastrukturom za igrače i gledatelje.
-              </p>
+              <p className="eyebrow">Gdje se igra</p>
+              <h2 className="section-title">Dosadašnje lokacije i širenje po Hrvatskoj</h2>
             </div>
           </div>
 
@@ -282,7 +395,7 @@ export function AboutPage() {
                 </span>
                 <h3 style={{ fontSize: '1.35rem', textTransform: 'uppercase' }}>{venue.name}</h3>
                 <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  Adresa: {venue.address}
+                  Područje: {venue.address}
                 </p>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>{venue.features}</p>
               </div>
@@ -291,17 +404,13 @@ export function AboutPage() {
         </div>
       </section>
 
-      {/* SLUŽBENI DOKUMENTI, PRAVILNICI I TRANSPARENTNOST */}
-      <section id="dokumenti" className="section section--subtle">
+      {/* DOKUMENTI I OBRASCI */}
+      <section id="dokumenti" className="section">
         <div className="container">
           <div className="section-head">
             <div>
-              <p className="eyebrow">Javna objava i obrasci</p>
-              <h2 className="section-title">Dokumenti, statut i propozicije</h2>
-              <p className="section-subtitle">
-                Preuzmite obrasce za prijavu igrača, suglasnosti za maloljetne sudionike te opće
-                pravilnike naših liga i turnira.
-              </p>
+              <p className="eyebrow">Transparentnost i obrasci</p>
+              <h2 className="section-title">Dokumenti udruge i predlošci za ekipe</h2>
             </div>
           </div>
 
@@ -370,18 +479,17 @@ export function AboutPage() {
                     onClick={() => handleDownloadSample(doc)}
                   >
                     <Download size={16} aria-hidden="true" />
-                    <span>Preuzmi predložak</span>
+                    <span>Preuzmi zapis</span>
                   </button>
                 </div>
               </article>
             ))}
           </div>
 
-          {/* Učlanjenje / Volontiranje poziv */}
           <div
             style={{
               marginTop: '2.5rem',
-              background: 'var(--bg-surface)',
+              background: 'var(--bg-subtle)',
               border: '1px solid var(--border-strong)',
               borderRadius: 'var(--radius-lg)',
               padding: '1.5rem 1.75rem',
@@ -398,17 +506,17 @@ export function AboutPage() {
               </div>
               <div>
                 <h3 style={{ fontSize: '1.4rem', textTransform: 'uppercase' }}>
-                  Postanite član, sudac, zapisničar ili volonter udruge
+                  Povežimo sportske organizacije, lige i turnire u Hrvatskoj
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.94rem', marginTop: '0.25rem' }}>
-                  Otvoreni smo za sve entuzijaste s područja Križevaca koji žele sudjelovati u
-                  organizaciji turnira, vođenju statistike, fotografiranju ili radu s mladima.
+                  Bilo da želite pokrenuti rekreativnu ligu u svome gradu, uključiti školu nogometa
+                  ili dopuniti našu sportsku arhivu zapisnicima i fotografijama, javite nam se.
                 </p>
               </div>
             </div>
             <Link to="/prijava-i-kontakt?tab=upit" viewTransition className="btn btn--primary">
               <Building2 size={18} aria-hidden="true" />
-              <span>Javite nam se</span>
+              <span>Kontaktiraj udrugu</span>
             </Link>
           </div>
         </div>
@@ -457,7 +565,7 @@ export function AboutPage() {
                 }}
               >
                 <ShieldCheck size={16} aria-hidden="true" />
-                Službeni izvadak Udruge NLT Križevci
+                Udruga {associationInfo.name}
               </span>
               <button
                 type="button"
@@ -465,7 +573,7 @@ export function AboutPage() {
                 onClick={() => handleDownloadSample(selectedDoc)}
               >
                 <Download size={16} aria-hidden="true" />
-                <span>Preuzmi datoteku (.txt)</span>
+                <span>Preuzmi (.txt)</span>
               </button>
             </div>
           </div>

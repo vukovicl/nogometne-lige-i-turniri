@@ -8,10 +8,14 @@ interface CompetitionCardProps {
 }
 
 export function CompetitionCard({ competition }: CompetitionCardProps) {
-  const fillPercent = Math.min(
-    100,
-    Math.round((competition.registeredTeams / competition.maxTeams) * 100)
-  );
+  const hasCapacity =
+    typeof competition.maxTeams === 'number' &&
+    typeof competition.registeredTeams === 'number' &&
+    competition.maxTeams > 0;
+
+  const fillPercent = hasCapacity
+    ? Math.min(100, Math.round(((competition.registeredTeams || 0) / (competition.maxTeams || 1)) * 100))
+    : 0;
 
   return (
     <article className="comp-card">
@@ -52,25 +56,27 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
           </div>
           <div className="comp-card__meta-row">
             <Users size={16} aria-hidden="true" />
-            <span>Format: {competition.format}</span>
+            <span>{competition.format}</span>
           </div>
           <div className="comp-card__meta-row">
             <Trophy size={16} aria-hidden="true" />
-            <span>Nagradni fond: {competition.prizePool}</span>
+            <span>{competition.prizePool}</span>
           </div>
         </div>
 
-        <div className="capacity-bar">
-          <div className="capacity-bar__label">
-            <span>Popunjenost ekipa</span>
-            <span>
-              {competition.registeredTeams} / {competition.maxTeams} ekipa ({fillPercent}%)
-            </span>
+        {hasCapacity && (
+          <div className="capacity-bar">
+            <div className="capacity-bar__label">
+              <span>Broj momčadi</span>
+              <span>
+                {competition.registeredTeams} / {competition.maxTeams} ekipa ({fillPercent}%)
+              </span>
+            </div>
+            <div className="capacity-bar__track" aria-hidden="true">
+              <div className="capacity-bar__fill" style={{ width: `${fillPercent}%` }} />
+            </div>
           </div>
-          <div className="capacity-bar__track" aria-hidden="true">
-            <div className="capacity-bar__fill" style={{ width: `${fillPercent}%` }} />
-          </div>
-        </div>
+        )}
 
         <div className="comp-card__footer">
           <Link
@@ -78,7 +84,7 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
             viewTransition
             className="btn btn--outline btn--sm"
           >
-            <span>Propozicije i detalji</span>
+            <span>Detalji i pregled</span>
             <ArrowRight size={16} aria-hidden="true" />
           </Link>
 
@@ -88,7 +94,7 @@ export function CompetitionCard({ competition }: CompetitionCardProps) {
               viewTransition
               className="btn btn--primary btn--sm"
             >
-              Prijavi ekipu
+              Prijava / Upit
             </Link>
           )}
         </div>

@@ -43,8 +43,8 @@ export function GalleryPage() {
             Foto galerija događanja
           </h1>
           <p className="page-banner__lead">
-            Zabilježeni trenuci s naših dvoranskih kupova, večernjih liga pod reflektorima,
-            dječjih turnira i svečanih dodjela nagrada u Križevcima.
+            Vizualni prikaz atmosfere s malonogometnih liga, turnira, programa za mlade i dodjela
+            priznanja najuspješnijim momčadima i pojedincima.
           </p>
         </div>
       </section>

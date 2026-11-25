@@ -1,37 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import {
   Calendar,
   MapPin,
   Menu,
-  Phone,
   Mail,
   Trophy,
   ShieldCheck,
   ArrowUpRight,
   X,
+  Globe,
 } from 'lucide-react';
 import { associationInfo } from '../data/siteData';
 import { assetUrl } from '../utils/assetUrl';
+import { useState } from 'react';
 
 const navItems = [
   { to: '/', label: 'Početna', end: true },
-  { to: '/o-udruzi', label: 'O udruzi' },
+  { to: '/o-udruzi', label: 'O udruzi i priča' },
   { to: '/natjecanja', label: 'Lige i turniri' },
-  { to: '/raspored-i-tablice', label: 'Raspored i tablice' },
-  { to: '/vijesti', label: 'Vijesti' },
+  { to: '/raspored-i-tablice', label: 'Rezultati i tablica' },
+  { to: '/vijesti', label: 'Novosti' },
   { to: '/galerija', label: 'Galerija' },
   { to: '/prijava-i-kontakt', label: 'Prijava i kontakt' },
 ];
 
 const routeTitles: Record<string, string> = {
-  '/': 'Nogometne lige i turniri Križevci | NLT Križevci',
-  '/o-udruzi': 'O udruzi i dokumenti | NLT Križevci',
-  '/natjecanja': 'Lige i turniri | NLT Križevci',
-  '/raspored-i-tablice': 'Raspored, rezultati i tablice | NLT Križevci',
-  '/vijesti': 'Vijesti i obavijesti | NLT Križevci',
-  '/galerija': 'Foto galerija događanja | NLT Križevci',
-  '/prijava-i-kontakt': 'Online prijava ekipe i kontakt | NLT Križevci',
+  '/': 'Nogometne lige i turniri | Football Leagues and Tournaments',
+  '/o-udruzi': 'O udruzi i priča o Dobrosusjedskim odnosima | Nogometne lige i turniri',
+  '/natjecanja': 'Lige, turniri i programi | Nogometne lige i turniri',
+  '/raspored-i-tablice': 'Rezultati, tablica i priznanja | Nogometne lige i turniri',
+  '/vijesti': 'Novosti i arhiva | Nogometne lige i turniri',
+  '/galerija': 'Foto galerija | Nogometne lige i turniri',
+  '/prijava-i-kontakt': 'Prijava, suradnja i kontakt | Nogometne lige i turniri',
 };
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -60,7 +61,6 @@ export function Layout() {
     return () => dialog.removeEventListener('close', onClose);
   }, []);
 
-  // Pomak na vrh, ažuriranje naslova dokumenta i fokusiranje glavnog naslova nakon promjene rute
   useEffect(() => {
     if (mobileDialogRef.current?.open) {
       mobileDialogRef.current.close();
@@ -68,7 +68,8 @@ export function Layout() {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
 
     const matchedTitle =
-      routeTitles[location.pathname] || `${associationInfo.name} | ${associationInfo.city}`;
+      routeTitles[location.pathname] ||
+      `${associationInfo.name} | ${associationInfo.englishName}`;
     document.title = matchedTitle;
 
     if (isFirstRender.current) {
@@ -76,7 +77,6 @@ export function Layout() {
       return;
     }
 
-    // Pristupačno usmjeravanje fokusa nakon SPA/ViewTransition navigacije
     const mainHeading = document.getElementById('page-main-heading');
     if (mainHeading) {
       mainHeading.focus({ preventScroll: true });
@@ -95,18 +95,14 @@ export function Layout() {
           <div className="topbar__left">
             <span className="topbar__pill">
               <span className="pulse-dot" aria-hidden="true" />
-              Prijave u tijeku: Zimski Kup Križevci
+              {associationInfo.englishName}
             </span>
             <span className="topbar__meta">
-              <MapPin size={14} aria-hidden="true" />
-              {associationInfo.city} i Prigorje
+              <Globe size={14} aria-hidden="true" />
+              Organizacija liga i turnira u Hrvatskoj
             </span>
           </div>
           <div className="topbar__right">
-            <a href={`tel:${associationInfo.phone.replace(/\s+/g, '')}`} className="topbar__link">
-              <Phone size={14} aria-hidden="true" />
-              <span>{associationInfo.phone}</span>
-            </a>
             <a href={`mailto:${associationInfo.email}`} className="topbar__link">
               <Mail size={14} aria-hidden="true" />
               <span>{associationInfo.email}</span>
@@ -118,7 +114,7 @@ export function Layout() {
       {/* Zaglavlje i glavna navigacija */}
       <header className="site-header">
         <div className="container site-header__inner">
-          <Link to="/" viewTransition className="brand" aria-label={`${associationInfo.fullName} – Početna`}>
+          <Link to="/" viewTransition className="brand" aria-label={`${associationInfo.name} – Početna`}>
             <img
               src={assetUrl('favicon.svg')}
               alt=""
@@ -127,7 +123,7 @@ export function Layout() {
               className="brand__crest"
             />
             <span className="brand__text">
-              <span className="brand__kicker">Udruga • {associationInfo.city}</span>
+              <span className="brand__kicker">Sportska udruga • Hrvatska</span>
               <span className="brand__name">{associationInfo.name}</span>
             </span>
           </Link>
@@ -152,7 +148,7 @@ export function Layout() {
           <div className="site-header__actions">
             <Link to="/prijava-i-kontakt" viewTransition className="btn btn--accent btn--sm header-cta">
               <Trophy size={16} aria-hidden="true" />
-              <span>Prijavi ekipu</span>
+              <span>Prijava i suradnja</span>
             </Link>
 
             <button
@@ -169,7 +165,7 @@ export function Layout() {
         </div>
       </header>
 
-      {/* Mobilna navigacijska ladica (<dialog> modal u top-layeru) */}
+      {/* Mobilna navigacijska ladica */}
       <dialog
         ref={mobileDialogRef}
         id="mobile-nav-drawer"
@@ -185,7 +181,7 @@ export function Layout() {
             <div className="brand">
               <img src={assetUrl('favicon.svg')} alt="" width={38} height={38} />
               <div className="brand__text">
-                <span className="brand__kicker">Udruga Križevci</span>
+                <span className="brand__kicker">Sportska udruga</span>
                 <span className="brand__name">{associationInfo.shortName}</span>
               </div>
             </div>
@@ -226,11 +222,9 @@ export function Layout() {
               onClick={() => setMobileMenuOpen(false)}
             >
               <Trophy size={18} aria-hidden="true" />
-              <span>Online prijava ekipe</span>
+              <span>Prijava ekipe ili suradnje</span>
             </Link>
-            <p className="mobile-drawer__contact">
-              {associationInfo.address} • {associationInfo.phone}
-            </p>
+            <p className="mobile-drawer__contact">{associationInfo.email}</p>
           </div>
         </div>
       </dialog>
@@ -244,18 +238,18 @@ export function Layout() {
         <div className="container">
           <div className="site-footer__cta-band">
             <div>
-              <p className="eyebrow eyebrow--gold">Spremni za idući izlazak na teren?</p>
+              <p className="eyebrow eyebrow--gold">Povezujemo amaterski nogomet u Hrvatskoj</p>
               <h2 className="site-footer__cta-title">
-                Prijavite svoju ekipu ili postanite partner sportskih događanja u Križevcima
+                Prijavite momčad, predložite pokretanje lige u svojoj sredini ili postanite partner udruge
               </h2>
             </div>
             <div className="site-footer__cta-buttons">
               <Link to="/prijava-i-kontakt" viewTransition className="btn btn--accent">
-                Prijava ekipe
+                Javite nam se
               </Link>
               <Link to="/raspored-i-tablice" viewTransition className="btn btn--outline-light">
                 <Calendar size={18} aria-hidden="true" />
-                <span>Raspored i tablice</span>
+                <span>Rezultati i tablica</span>
               </Link>
             </div>
           </div>
@@ -265,7 +259,7 @@ export function Layout() {
               <div className="brand brand--light">
                 <img src={assetUrl('favicon.svg')} alt="" width={44} height={44} />
                 <div className="brand__text">
-                  <span className="brand__kicker">Sportska udruga građana</span>
+                  <span className="brand__kicker">{associationInfo.englishName}</span>
                   <span className="brand__name">{associationInfo.name}</span>
                 </div>
               </div>
@@ -273,9 +267,9 @@ export function Layout() {
               <div className="footer-credential-box">
                 <ShieldCheck size={18} aria-hidden="true" />
                 <div>
-                  <strong>Podaci udruge za uplate kotizacija:</strong>
-                  <span>IBAN: {associationInfo.iban}</span>
-                  <span>OIB: {associationInfo.oib} • Sjedište: {associationInfo.city}</span>
+                  <strong>Službeni podaci udruge:</strong>
+                  <span>OIB: {associationInfo.oib} • Reg. broj: {associationInfo.registryNo}</span>
+                  <span>Sjedište: {associationInfo.address}</span>
                 </div>
               </div>
             </div>
@@ -294,61 +288,60 @@ export function Layout() {
             </div>
 
             <div className="site-footer__col">
-              <h3 className="site-footer__heading">Naša natjecanja</h3>
+              <h3 className="site-footer__heading">Natjecanja i arhiva</h3>
               <ul className="site-footer__links">
                 <li>
                   <Link to="/natjecanja/malonogometna-liga-dobrosusjedski-odnosi" viewTransition>
-                    Liga "Dobrosusjedski odnosi"
+                    Dobrosusjedski odnosi 2026.
                   </Link>
                 </li>
                 <li>
-                  <Link to="/natjecanja/zimski-malonogometni-turnir-krizevci" viewTransition>
-                    Zimski Kup Križevci
+                  <Link to="/natjecanja/organizacija-rekreativnih-liga-hrvatska" viewTransition>
+                    Rekreativne lige u RH
                   </Link>
                 </li>
                 <li>
-                  <Link to="/natjecanja/rekreativna-i-veteranska-liga-krizevci" viewTransition>
-                    Veteranska liga 35+
+                  <Link to="/natjecanja/malonogometni-kupovi-i-turniri" viewTransition>
+                    Otvoreni turniri i kupovi
                   </Link>
                 </li>
                 <li>
-                  <Link to="/natjecanja/kup-mladih-nada-prigorja" viewTransition>
-                    Kup mladih nada (U-9 – U-13)
+                  <Link to="/natjecanja/turniri-za-djecu-i-mlade" viewTransition>
+                    Programi i turniri za mlade
                   </Link>
                 </li>
                 <li>
-                  <Link to="/o-udruzi#dokumenti" viewTransition>
-                    Pravilnici i obrasci
+                  <Link to="/natjecanja/arhiva-dobrosusjedski-odnosi-2015-2016" viewTransition>
+                    Arhiva sezona 2015. – 2016.
                   </Link>
                 </li>
               </ul>
             </div>
 
             <div className="site-footer__col">
-              <h3 className="site-footer__heading">Kontakt i lokacija</h3>
+              <h3 className="site-footer__heading">Sjedište i kontakt</h3>
               <ul className="site-footer__contact-list">
                 <li>
                   <MapPin size={16} aria-hidden="true" />
                   <span>{associationInfo.address}</span>
                 </li>
                 <li>
-                  <Phone size={16} aria-hidden="true" />
-                  <a href={`tel:${associationInfo.phone.replace(/\s+/g, '')}`}>{associationInfo.phone}</a>
-                </li>
-                <li>
                   <Mail size={16} aria-hidden="true" />
                   <a href={`mailto:${associationInfo.email}`}>{associationInfo.email}</a>
                 </li>
               </ul>
+              <p style={{ fontSize: '0.82rem', marginTop: '0.85rem' }}>
+                Voditelji udruge: Alen Miholić i Matija Vuković
+              </p>
               <div className="site-footer__socials">
+                <a href={associationInfo.socials.sofascore} target="_blank" rel="noreferrer">
+                  Sofascore
+                </a>
                 <a href={associationInfo.socials.facebook} target="_blank" rel="noreferrer">
                   Facebook
                 </a>
                 <a href={associationInfo.socials.instagram} target="_blank" rel="noreferrer">
                   Instagram
-                </a>
-                <a href={associationInfo.socials.youtube} target="_blank" rel="noreferrer">
-                  YouTube
                 </a>
               </div>
             </div>
@@ -356,10 +349,11 @@ export function Layout() {
 
           <div className="site-footer__bottom">
             <p>
-              © {CURRENT_YEAR} {associationInfo.fullName}. Sva prava pridržana.
+              © {CURRENT_YEAR} Udruga {associationInfo.name} ({associationInfo.englishName}). Sva
+              prava pridržana.
             </p>
             <p className="site-footer__note">
-              Izrađeno za sportsku zajednicu Križevaca i Prigorja.
+              Promicanje nogometa, malog nogometa i sportske rekreacije u Republici Hrvatskoj.
             </p>
           </div>
         </div>

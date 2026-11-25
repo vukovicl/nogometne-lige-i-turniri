@@ -2,10 +2,9 @@ import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   Award,
-  Calendar,
+  BookOpen,
   CheckCircle2,
-  Clock,
-  MapPin,
+  Globe,
   Shield,
   Sparkles,
   Trophy,
@@ -15,8 +14,8 @@ import {
   associationInfo,
   competitions,
   leagueTables,
-  matches,
   newsArticles,
+  season2026Awards,
 } from '../data/siteData';
 import { assetUrl } from '../utils/assetUrl';
 import { CompetitionCard } from '../components/CompetitionCard';
@@ -24,10 +23,8 @@ import { StandingsTable } from '../components/StandingsTable';
 
 export function HomePage() {
   const featuredCompetitions = competitions.slice(0, 3);
-  const upcomingMatches = matches.filter((m) => m.status === 'najava').slice(0, 3);
-  const recentResults = matches.filter((m) => m.status === 'odigrano').slice(0, 2);
   const primaryTable = leagueTables[0];
-  const latestNews = newsArticles.slice(0, 3);
+  const latestNews = newsArticles.slice(0, 4);
 
   return (
     <>
@@ -36,7 +33,7 @@ export function HomePage() {
         <div className="hero__bg">
           <img
             src={assetUrl('images/hero-night-tournament.jpg')}
-            alt="Večernja malonogometna utakmica pod reflektorima u Križevcima"
+            alt="Večernja malonogometna utakmica pod reflektorima"
             width={1600}
             height={900}
             fetchPriority="high"
@@ -47,30 +44,30 @@ export function HomePage() {
           <div>
             <div className="hero__badge">
               <Sparkles size={15} aria-hidden="true" />
-              <span>{associationInfo.region}</span>
+              <span>{associationInfo.englishName} • Hrvatska</span>
             </div>
 
             <h1 id="page-main-heading" tabIndex={-1} className="hero__title">
-              Nogometne lige i turniri <span>Križevci</span>
+              Nogometne <span>lige i turniri</span>
             </h1>
 
             <p className="hero__lead">{associationInfo.heroLead}</p>
 
             <div className="hero__actions">
               <Link
-                to="/prijava-i-kontakt?natjecanje=zimski-kup"
+                to="/prijava-i-kontakt"
                 viewTransition
                 className="btn btn--accent btn--lg"
               >
                 <Trophy size={20} aria-hidden="true" />
-                <span>Prijavi ekipu na Zimski Kup</span>
+                <span>Prijavi ekipu ili pokreni suradnju</span>
               </Link>
               <Link
-                to="/natjecanja"
+                to="/o-udruzi"
                 viewTransition
                 className="btn btn--outline-light btn--lg"
               >
-                <span>Istraži sva natjecanja</span>
+                <span>O udruzi i naša priča</span>
                 <ArrowRight size={18} aria-hidden="true" />
               </Link>
             </div>
@@ -85,76 +82,65 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Desni Matchday & Prijave info panel */}
-          <aside className="hero-spotlight" aria-label="Aktualno na terenima u Križevcima">
+          {/* Desni info panel: Ostvarena sezona 2026. i širenje projekata */}
+          <aside className="hero-spotlight" aria-label="Istaknuto iz rada udruge">
             <div className="hero-spotlight__top">
               <div>
                 <p className="eyebrow eyebrow--light" style={{ marginBottom: '0.2rem' }}>
-                  Idući sportski vikend
+                  Sezona 2026. • 12 ekipa / 11 kola
                 </p>
                 <h2 style={{ fontSize: '1.45rem', textTransform: 'uppercase' }}>
-                  Najava kola i prijave
+                  Dobrosusjedski odnosi
                 </h2>
               </div>
-              <span className="status-chip status-chip--prijave-u-tijeku">Aktualno</span>
+              <span className="status-chip status-chip--prijave-u-tijeku">Laureati 2026.</span>
             </div>
 
-            {upcomingMatches.slice(0, 2).map((match) => (
-              <div key={match.id} className="hero-spotlight__match">
+            <div style={{ display: 'grid', gap: '0.55rem', marginBottom: '1rem' }}>
+              {season2026Awards.slice(0, 6).map((item) => (
                 <div
+                  key={item.title}
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    fontSize: '0.78rem',
-                    color: '#9bd5be',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '0.55rem 0.8rem',
+                    borderRadius: 'var(--radius-sm)',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.09)',
+                    fontSize: '0.86rem',
                   }}
                 >
-                  <span>{match.competitionName}</span>
-                  <span>
-                    {match.date} • {match.time}
-                  </span>
+                  <span style={{ color: '#9bd5be', fontWeight: 600 }}>{item.title}</span>
+                  <strong style={{ textAlign: 'end' }}>
+                    {item.winner}
+                    {item.teamOrNote && item.title.startsWith('Najbolji')
+                      ? ` (${item.teamOrNote})`
+                      : ''}
+                  </strong>
                 </div>
-                <div className="hero-spotlight__teams">
-                  <span>{match.homeTeam}</span>
-                  <span className="hero-spotlight__vs">VS</span>
-                  <span style={{ textAlign: 'end' }}>{match.awayTeam}</span>
-                </div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-on-dark-muted)' }}>
-                  <MapPin
-                    size={13}
-                    aria-hidden="true"
-                    style={{ display: 'inline', verticalAlign: '-2px', marginRight: '4px' }}
-                  />
-                  {match.venue}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
             <div
               style={{
-                padding: '0.95rem 1rem',
+                padding: '0.85rem 1rem',
                 borderRadius: 'var(--radius-md)',
-                background: 'rgba(234, 179, 8, 0.12)',
-                border: '1px solid rgba(234, 179, 8, 0.35)',
+                background: 'rgba(18, 163, 107, 0.14)',
+                border: '1px solid rgba(110, 231, 183, 0.3)',
                 marginBottom: '1rem',
+                fontSize: '0.83rem',
+                color: '#d9f2e6',
               }}
             >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  color: '#fde047',
-                  fontWeight: 700,
-                  fontSize: '0.88rem',
-                }}
-              >
-                <Clock size={16} aria-hidden="true" />
-                <span>Zimski Kup Križevci – ostalo još 8 slobodnih mjesta!</span>
-              </div>
-              <p style={{ fontSize: '0.82rem', color: '#e2e8f0', marginTop: '0.25rem' }}>
-                Prijave traju do 08.12.2026. Nagradni fond iznosi 6.500 € uz TV/stream završnice.
-              </p>
+              <Globe
+                size={15}
+                aria-hidden="true"
+                style={{ display: 'inline', verticalAlign: '-2px', marginRight: '6px' }}
+              />
+              Otvoreni smo za organizaciju liga, kupova i turnira u suradnji s gradovima i klubovima
+              diljem Hrvatske.
             </div>
 
             <Link
@@ -162,27 +148,27 @@ export function HomePage() {
               viewTransition
               className="btn btn--primary btn--full"
             >
-              <Calendar size={18} aria-hidden="true" />
-              <span>Cijeli raspored, rezultati i tablice</span>
+              <span>Pogledaj cijelu tablicu i priznanja</span>
+              <ArrowRight size={17} aria-hidden="true" />
             </Link>
           </aside>
         </div>
       </section>
 
-      {/* ISTAKNUTA NATJECANJA */}
+      {/* NATJECANJA I PROGRAMI UDRUGE */}
       <section className="section">
         <div className="container">
           <div className="section-head">
             <div>
-              <p className="eyebrow">Kalendar događanja u Križevcima</p>
-              <h2 className="section-title">Aktivne lige i nadolazeći turniri</h2>
+              <p className="eyebrow">Naši projekti i programi</p>
+              <h2 className="section-title">Lige, turniri i razvoj amaterskog nogometa</h2>
               <p className="section-subtitle">
-                Od dvoranskog zimskog spektakla i ljetne lige pod reflektorima do turnira za
-                veterane i najmlađe uzraste Prigorja.
+                Od uspješno održane povratničke lige u 2026. godini i sačuvane povijesne arhive do
+                razvoja partnerskih rekreativnih liga i turnira diljem Hrvatske.
               </p>
             </div>
             <Link to="/natjecanja" viewTransition className="btn btn--outline">
-              <span>Sva natjecanja ({competitions.length})</span>
+              <span>Svi programi i arhiva ({competitions.length})</span>
               <ArrowRight size={17} aria-hidden="true" />
             </Link>
           </div>
@@ -195,19 +181,20 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* BRZI PREGLED TABLICE I REZULTATA */}
+      {/* TABLICA I PRIČA O UDRUZI */}
       <section className="section section--subtle">
         <div className="container">
           <div className="section-head">
             <div>
-              <p className="eyebrow">Statistika i rezultati uživo</p>
-              <h2 className="section-title">Stanje na ljestvici i semafor kola</h2>
+              <p className="eyebrow">Rezultati i poredak</p>
+              <h2 className="section-title">Tablica lige Dobrosusjedski odnosi 2026.</h2>
               <p className="section-subtitle">
-                Pratite aktualni poredak vodećih ekipa i najnovije rezultate odigranih susreta.
+                Pregled vodećih momčadi povratničke sezone za koju je udruga vodila podatke na
+                Sofascoreu.
               </p>
             </div>
             <Link to="/raspored-i-tablice" viewTransition className="btn btn--primary">
-              <span>Sve tablice i lista strijelaca</span>
+              <span>Svih 12 momčadi i arhiva susreta</span>
               <ArrowRight size={17} aria-hidden="true" />
             </Link>
           </div>
@@ -223,87 +210,33 @@ export function HomePage() {
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border-light)',
                   borderRadius: 'var(--radius-lg)',
-                  padding: '1.35rem',
+                  padding: '1.5rem',
+                  display: 'grid',
+                  gap: '0.85rem',
                 }}
               >
-                <h3
-                  style={{
-                    fontSize: '1.35rem',
-                    textTransform: 'uppercase',
-                    marginBottom: '0.9rem',
-                  }}
-                >
-                  Posljednji odigrani susreti
+                <span className="eyebrow" style={{ marginBottom: 0 }}>
+                  O udruzi i povijesti natjecanja
+                </span>
+                <h3 style={{ fontSize: '1.55rem', textTransform: 'uppercase' }}>
+                  Od dokumentirane 2015. godine do nacionalne vizije udruge iz 2026.
                 </h3>
-                <div style={{ display: 'grid', gap: '0.75rem' }}>
-                  {recentResults.map((m) => (
-                    <div
-                      key={m.id}
-                      style={{
-                        padding: '0.9rem 1rem',
-                        borderRadius: 'var(--radius-md)',
-                        background: 'var(--bg-subtle)',
-                        border: '1px solid var(--border-light)',
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          fontSize: '0.78rem',
-                          color: 'var(--text-muted)',
-                          marginBottom: '0.4rem',
-                        }}
-                      >
-                        <strong style={{ color: 'var(--pitch-700)' }}>{m.competitionName}</strong>
-                        <span>
-                          {m.round} • {m.date}
-                        </span>
-                      </div>
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '1fr auto 1fr',
-                          alignItems: 'center',
-                          gap: '0.6rem',
-                          fontWeight: 700,
-                        }}
-                      >
-                        <span>{m.homeTeam}</span>
-                        <span className="match-card__score">
-                          {m.homeScore} : {m.awayScore}
-                        </span>
-                        <span style={{ textAlign: 'end' }}>{m.awayTeam}</span>
-                      </div>
-                      {m.summary && (
-                        <p
-                          style={{
-                            fontSize: '0.84rem',
-                            color: 'var(--text-secondary)',
-                            marginTop: '0.5rem',
-                          }}
-                        >
-                          {m.summary}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border-light)' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                  Udruga <strong>Nogometne lige i turniri</strong> registrirana je u travnju 2026.
+                  sa sjedištem u Gračini i voditeljima <strong>Alenom Miholićem</strong> i{' '}
+                  <strong>Matijom Vukovićem</strong>. Uz nove projekte diljem Hrvatske, čuvamo i
+                  vrijednu priču o ligi Dobrosusjedski odnosi – od 24 momčadi i trojice
+                  reprezentativaca na Europskom prvenstvu u Vrsaru 2015. te dvije lige iz 2016., pa
+                  sve do irske priče s klubom FC Croatia Fermoy i povratničke sezone 2026.
+                </p>
+                <div>
                   <Link
-                    to="/raspored-i-tablice"
+                    to="/o-udruzi"
                     viewTransition
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.4rem',
-                      fontWeight: 700,
-                      color: 'var(--pitch-700)',
-                    }}
+                    className="btn btn--outline btn--sm"
                   >
-                    <span>Otvori detaljne zapisnike sa strijelcima</span>
-                    <ArrowRight size={16} aria-hidden="true" />
+                    <BookOpen size={16} aria-hidden="true" />
+                    <span>Pročitaj cijelu priču o udruzi i ligi</span>
                   </Link>
                 </div>
               </div>
@@ -313,7 +246,7 @@ export function HomePage() {
                   background: 'linear-gradient(135deg, #072219 0%, #0d3a2c 100%)',
                   color: '#ffffff',
                   borderRadius: 'var(--radius-lg)',
-                  padding: '1.4rem',
+                  padding: '1.45rem',
                   display: 'flex',
                   flexWrap: 'wrap',
                   alignItems: 'center',
@@ -323,17 +256,18 @@ export function HomePage() {
               >
                 <div>
                   <span className="eyebrow eyebrow--gold" style={{ marginBottom: '0.2rem' }}>
-                    Udruga NLT Križevci
+                    Suradnja diljem Hrvatske
                   </span>
                   <h3 style={{ fontSize: '1.45rem', textTransform: 'uppercase' }}>
-                    Želite uključiti svoju tvrtku, kvart ili klub?
+                    Želite pokrenuti ligu ili turnir u svom gradu ili općini?
                   </h3>
                   <p style={{ fontSize: '0.9rem', color: '#cde2d9', marginTop: '0.25rem' }}>
-                    Upoznajte našu udrugu, preuzmite pravilnike ili nam se javite za suradnju.
+                    Povezujemo sportske organizacije, rekreativce i mlade kroz provjereni sustav
+                    natjecanja.
                   </p>
                 </div>
-                <Link to="/o-udruzi" viewTransition className="btn btn--accent btn--sm">
-                  Više o udruzi
+                <Link to="/prijava-i-kontakt?tab=upit" viewTransition className="btn btn--accent btn--sm">
+                  Dogovori suradnju
                 </Link>
               </div>
             </div>
@@ -341,16 +275,16 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* VRIJEDNOSTI UDRUGE (DARK SEKCIJA) */}
+      {/* VRIJEDNOSTI I DJELATNOSTI UDRUGE */}
       <section className="section section--dark">
         <div className="container">
           <div className="section-head">
             <div>
-              <p className="eyebrow eyebrow--gold">Standard organizacije</p>
-              <h2 className="section-title">Što donosi Udruga "Nogometne lige i turniri"?</h2>
+              <p className="eyebrow eyebrow--gold">Misija i djelatnosti</p>
+              <h2 className="section-title">Na čemu temeljimo rad udruge?</h2>
               <p className="section-subtitle">
-                Naš je cilj svakom rekreativcu, djetetu i gledatelju u Križevcima pružiti osjećaj
-                velikog sportskog natjecanja.
+                Razvoj amaterskog nogometa, digitalna transparentnost, povezivanje sportskih
+                organizacija i uključivanje mladih u sport.
               </p>
             </div>
           </div>
@@ -358,10 +292,11 @@ export function HomePage() {
           <div className="info-grid">
             {associationInfo.values.map((val, index) => {
               const icons = [
-                <CheckCircle2 key="i0" size={22} aria-hidden="true" />,
-                <Users key="i1" size={22} aria-hidden="true" />,
-                <Award key="i2" size={22} aria-hidden="true" />,
-                <Shield key="i3" size={22} aria-hidden="true" />,
+                <Globe key="i0" size={22} aria-hidden="true" />,
+                <CheckCircle2 key="i1" size={22} aria-hidden="true" />,
+                <Users key="i2" size={22} aria-hidden="true" />,
+                <Award key="i3" size={22} aria-hidden="true" />,
+                <Shield key="i4" size={22} aria-hidden="true" />,
               ];
               return (
                 <div key={val.title} className="info-card">
@@ -377,16 +312,16 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* NAJNOVIJE VIJESTI */}
+      {/* RUBRIKA NOVOSTI (4 ČLANKA) */}
       <section className="section">
         <div className="container">
           <div className="section-head">
             <div>
-              <p className="eyebrow">Novosti iz udruge</p>
-              <h2 className="section-title">Vijesti, izvještaji i najave</h2>
+              <p className="eyebrow">Aktualnosti i povijesni zapisi</p>
+              <h2 className="section-title">Novosti i priče iz arhive</h2>
             </div>
             <Link to="/vijesti" viewTransition className="btn btn--outline">
-              <span>Sve obavijesti</span>
+              <span>Sve objave ({newsArticles.length})</span>
               <ArrowRight size={17} aria-hidden="true" />
             </Link>
           </div>
@@ -428,54 +363,13 @@ export function HomePage() {
                         color: 'var(--pitch-700)',
                       }}
                     >
-                      <span>Pročitaj članak</span>
+                      <span>Pročitaj više</span>
                       <ArrowRight size={16} aria-hidden="true" />
                     </Link>
                   </div>
                 </div>
               </article>
             ))}
-          </div>
-
-          {/* Partneri i pokrovitelji */}
-          <div
-            style={{
-              marginTop: '3.5rem',
-              paddingTop: '2.5rem',
-              borderTop: '1px solid var(--border-light)',
-            }}
-          >
-            <p
-              className="eyebrow"
-              style={{ display: 'block', textAlign: 'center', marginBottom: '1.25rem' }}
-            >
-              Prijatelji sporta, pokrovitelji i partneri u Križevcima
-            </p>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 11rem), 1fr))',
-                gap: '0.85rem',
-              }}
-            >
-              {associationInfo.partners.map((partner) => (
-                <div
-                  key={partner.name}
-                  style={{
-                    padding: '1rem',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'var(--bg-surface)',
-                    border: '1px solid var(--border-light)',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>{partner.name}</div>
-                  <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                    {partner.tier}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </section>

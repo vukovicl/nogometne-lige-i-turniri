@@ -1,15 +1,13 @@
 /**
  * CENTRALNA DATOTEKA S PODACIMA STRANICE
  * ======================================
- * Ovdje se nalaze svi tekstovi, natjecanja, tablice, rasporedi, vijesti,
- * galerija, dokumenti i kontakt podaci Udruge "Nogometne lige i turniri" Križevci.
- *
- * Kada dobijete dodatne podatke i fotografije, dovoljno je urediti ovu datoteku
- * i zamijeniti slike u mapi `public/images/`.
+ * Udruga "Nogometne lige i turniri" (Football Leagues and Tournaments)
+ * Svi podaci o udruzi, voditeljima, natjecanjima, tablicama, priznanjima,
+ * arhivi i vijestima nalaze se na ovom mjestu radi lakšeg budućeg uređivanja.
  */
 
 export type CompetitionStatus = 'prijave-u-tijeku' | 'aktivno' | 'u-najavi' | 'zavrseno';
-export type CompetitionCategory = 'Turnir' | 'Liga' | 'Mladi' | 'Veterani';
+export type CompetitionCategory = 'Turnir' | 'Liga' | 'Mladi' | 'Arhiva';
 
 export interface Competition {
   id: string;
@@ -27,8 +25,8 @@ export interface Competition {
   surface: string;
   format: string;
   matchDuration: string;
-  maxTeams: number;
-  registeredTeams: number;
+  maxTeams?: number;
+  registeredTeams?: number;
   entryFee: string;
   prizePool: string;
   prizes: { place: string; reward: string }[];
@@ -66,6 +64,12 @@ export interface LeagueTableGroup {
   rows: StandingRow[];
 }
 
+export interface SeasonAward {
+  title: string;
+  winner: string;
+  teamOrNote?: string;
+}
+
 export interface MatchEvent {
   minute: string;
   player: string;
@@ -79,39 +83,24 @@ export interface MatchItem {
   competitionName: string;
   round: string;
   date: string;
-  time: string;
+  time?: string;
   venue: string;
   homeTeam: string;
   awayTeam: string;
   homeScore?: number;
   awayScore?: number;
-  status: 'odigrano' | 'najava';
-  referee?: string;
+  outcomeBadge?: string;
+  status: 'odigrano' | 'arhiva';
   summary?: string;
   sofascoreMatchUrl?: string;
   events?: MatchEvent[];
 }
 
-export interface TopScorer {
-  rank: number;
-  name: string;
-  team: string;
-  competition: string;
-  goals: number;
-  matches: number;
-  mvpCount: number;
-}
-
-export interface BracketMatch {
+export interface StorySection {
   id: string;
-  stage: 'Četvrtfinale' | 'Polufinale' | 'Utakmica za 3. mjesto' | 'Finale';
-  label: string;
-  time: string;
-  teamA: string;
-  teamB: string;
-  scoreA?: number;
-  scoreB?: number;
-  note?: string;
+  eyebrow: string;
+  title: string;
+  paragraphs: string[];
 }
 
 export interface NewsArticle {
@@ -119,7 +108,7 @@ export interface NewsArticle {
   slug: string;
   title: string;
   excerpt: string;
-  category: 'Prijave' | 'Izvještaj' | 'Obavijest' | 'Mladi';
+  category: 'Novosti' | 'Izvještaj' | 'Arhiva' | 'Udruga';
   date: string;
   readTime: string;
   image: string;
@@ -131,7 +120,7 @@ export interface NewsArticle {
 export interface GalleryItem {
   id: string;
   title: string;
-  category: 'Turniri' | 'Lige' | 'Mladi' | 'Nagrade';
+  category: 'Lige' | 'Turniri' | 'Mladi' | 'Nagrade';
   event: string;
   date: string;
   image: string;
@@ -150,328 +139,385 @@ export interface AssociationDocument {
 
 export const associationInfo = {
   name: 'Nogometne lige i turniri',
-  fullName: 'Udruga "Nogometne lige i turniri" Križevci',
-  shortName: 'NLT Križevci',
-  city: 'Križevci',
-  region: 'Koprivničko-križevačka županija • Prigorje',
-  foundedYear: '2021.',
-  tagline: 'Središte malog nogometa, rekreativnih liga i turnira križevačkog kraja',
+  englishName: 'Football Leagues and Tournaments',
+  fullName: 'Nogometne lige i turniri',
+  shortName: 'NLT',
+  city: 'Gračina',
+  scopeRegion: 'Republika Hrvatska • Organizacija liga i turnira',
+  foundingAssemblyDate: '23. ožujka 2026.',
+  registryDate: '20. travnja 2026.',
+  tagline: 'Organizacija nogometnih i malonogometnih liga, turnira i sportske rekreacije u Hrvatskoj',
   heroLead:
-    'Organiziramo kultnu malonogometnu ligu "Dobrosusjedski odnosi", dvoranske kupove i turnire u Križevcima – uz službeno praćenje statistike, rezultata i poretka ekipa.',
-  address: 'Ulica kralja Tomislava 18, 48260 Križevci (primjer adrese)',
-  email: 'info@nlt-krizevci.hr',
-  registrationEmail: 'prijave@nlt-krizevci.hr',
-  phone: '+385 98 000 0000',
-  secondaryPhone: '+385 91 000 0000',
-  iban: 'HR1223600001100000000',
-  oib: '12345678901',
-  registryNo: '06001234',
-  workingHours: 'Pon – Pet: 17:00 – 21:00 | Vikendom za vrijeme natjecanja',
+    'Promičemo nogomet, mali nogomet i sportsku rekreaciju kroz suvremenu organizaciju liga i turnira, povezivanje sportskih sredina, uključivanje mladih i čuvanje vrijedne sportske arhive – s vizijom razvoja natjecanja diljem Hrvatske.',
+  address: 'Gračina 80, Gračina, Koprivničko-križevačka županija',
+  email: 'nogometneligeiturniri@gmail.com',
+  registrationEmail: 'nogometneligeiturniri@gmail.com',
+  phone: '', // Dodajte broj telefona po želji
+  iban: '', // Dodajte IBAN udruge po otvaranju ili potrebi
+  oib: '27201167728',
+  registryNo: '06001657',
+  workingHours: 'Upiti i prijave putem službene e-pošte i online obrasca',
   socials: {
+    sofascore: 'https://www.sofascore.com/hr/minifootball',
     facebook: 'https://facebook.com',
     instagram: 'https://instagram.com',
-    youtube: 'https://youtube.com',
   },
+  registryFacts: [
+    { label: 'Puni naziv', value: 'Nogometne lige i turniri' },
+    { label: 'Naziv na engleskom', value: 'Football Leagues and Tournaments' },
+    { label: 'Sjedište', value: 'Gračina 80, Gračina, Koprivničko-križevačka županija' },
+    { label: 'Osnivačka skupština', value: '23. ožujka 2026.' },
+    { label: 'Upis u Registar udruga RH', value: '20. travnja 2026.' },
+    { label: 'Registarski broj', value: '06001657' },
+    { label: 'OIB', value: '27201167728' },
+    { label: 'E-pošta', value: 'nogometneligeiturniri@gmail.com' },
+  ],
+  registeredActivities: [
+    'Promicanje sporta, s posebnim naglaskom na nogomet i mali nogomet',
+    'Poticanje redovite sportske rekreacije građana svih generacija',
+    'Organizacija malonogometnih i nogometnih liga, kupova i turnira diljem Hrvatske',
+    'Razvoj amaterskog sporta i povezivanje sportskih organizacija i klubova',
+    'Uključivanje djece i mladih u sport te sustavno promicanje fair playa',
+  ],
   stats: [
-    { value: '12', label: 'Ekipa u ligi Dobrosusjedski odnosi', detail: '270 postignutih golova u 11 kola' },
-    { value: '52+', label: 'Aktivnih ekipa godišnje', detail: 'Križevci, Vrbovec, Fodrovec i Prigorje' },
-    { value: '680+', label: 'Registriranih igrača', detail: 'Seniori, rekreativci, veterani i djeca' },
-    { value: '180+', label: 'Utakmica po sezoni', detail: 'Praćenje rezultata i statistike na Sofascoreu' },
+    { value: '2026.', label: 'Registrirana udruga', detail: 'Upis u Registar udruga RH 20. travnja 2026.' },
+    { value: '12', label: 'Ekipa u sezoni 2026.', detail: 'Povratnička sezona lige Dobrosusjedski odnosi' },
+    { value: '24', label: 'Momčadi u arhivi 2015.', detail: '336 igrača u lokalnom izboru za selekciju' },
+    { value: 'HR', label: 'Otvoreno za cijelu Hrvatsku', detail: 'Povezivanje liga, turnira i sportskih sredina' },
   ],
   values: [
     {
-      title: 'Vrhunska organizacija i Sofascore statistika',
+      title: 'Organizacija natjecanja diljem Hrvatske',
       description:
-        'Jasno definirani rasporedi, licencirani suci te službena objava rezultata, forme ekipa i tablica uz praćenje na platformi Sofascore Minifootball.',
+        'Gradimo model organizacije nogometnih i malonogometnih liga te turnira koji je prenosiv i otvoren sportskim sredinama, gradovima i rekreativcima u cijeloj Hrvatskoj.',
     },
     {
-      title: 'Dobrosusjedski duh i zajedništvo',
+      title: 'Digitalna evidencija i javna arhiva',
       description:
-        'Oživjeli smo omiljenu križevačku ligu "Dobrosusjedski odnosi" koja petkom navečer pod reflektorima okuplja ekipe i navijače iz cijelog kraja.',
+        'Od unosa i uređivanja podataka o utakmicama na Sofascoreu do čuvanja povijesnih kola, strijelaca i fair-play dobitnika kako trud ekipa ne bi pao u zaborav.',
     },
     {
-      title: 'Ulaganje u mlade generacije',
+      title: 'Povezivanje sportskih organizacija',
       description:
-        'Kroz turnire za najmlađe uzraste potičemo djecu na kretanje, timski duh i ljubav prema sportu bez rezultatskog pritiska.',
+        'Povezujemo amaterske momčadi, lokalne udruge, škole nogometa i rekreativne lige kroz zajedničke standarde natjecanja, kup susrete i razmjenu iskustava.',
     },
     {
-      title: 'Potpuna transparentnost rada',
+      title: 'Mladi i kultura fair playa',
       description:
-        'Svi pravilnici, disciplinske odluke, propozicije natjecanja i izvještaji udruge javno su dostupni svim članovima i sudionicima.',
+        'Posebno potičemo uključivanje mladih u sport te nagrađujemo korektnost na terenu – jer sportski odnos i poštovanje suparnika vrijede jednako kao i bodovi.',
     },
   ],
   boardMembers: [
     {
-      role: 'Predsjednik udruge',
-      name: 'Ime i prezime (urediti u siteData.ts)',
-      bio: 'Organizacija natjecanja, koordinacija lige "Dobrosusjedski odnosi" i razvoj sportskih projekata u Križevcima.',
-      contact: 'predsjednik@nlt-krizevci.hr',
+      role: 'Voditelj udruge i organizator natjecanja',
+      name: 'Alen Miholić',
+      bio: 'Dugogodišnji organizator malonogometnih natjecanja i pokretač dokumentiranih izdanja lige „Dobrosusjedski odnosi” još sredinom prošlog desetljeća. U lipnju 2021. bio je i među utemeljiteljima kluba FC Croatia Fermoy u Irskoj, koji je osvojio Leisure League u Corku sa svih 14 pobjeda i maksimalna 42 boda.',
+      contact: 'nogometneligeiturniri@gmail.com',
     },
     {
-      role: 'Dopredsjednik i voditelj liga',
-      name: 'Ime i prezime (urediti u siteData.ts)',
-      bio: 'Zadužen za sustav natjecanja, ždrijeb, delegiranje utakmica i komunikaciju s voditeljima ekipa.',
-      contact: 'voditelj@nlt-krizevci.hr',
-    },
-    {
-      role: 'Tajnik udruge',
-      name: 'Ime i prezime (urediti u siteData.ts)',
-      bio: 'Administracija članstva, registracije igrača, projektne prijave i suradnja s Gradom Križevcima.',
-      contact: 'tajnik@nlt-krizevci.hr',
-    },
-    {
-      role: 'Povjerenik za suđenje i zapisnike',
-      name: 'Ime i prezime (urediti u siteData.ts)',
-      bio: 'Brine o primjeni pravila malog nogometa, fer igri i unosu službenih rezultata.',
-      contact: 'disciplina@nlt-krizevci.hr',
+      role: 'Voditelj udruge i koordinator natjecanja',
+      name: 'Matija Vuković',
+      bio: 'Voditelj udruge „Nogometne lige i turniri” uključen u organizacijsko oživljavanje ligaških natjecanja 2026. godine, koordinaciju momčadi, praćenje rezultata i razvoj novih turnirskih i ligaških projekata na nacionalnoj razini.',
+      contact: 'nogometneligeiturniri@gmail.com',
     },
   ],
+  storySections: [
+    {
+      id: 'udruga-gracina',
+      eyebrow: 'O udruzi (2026.)',
+      title: 'Udruga iz Gračine posvećena nogometu i malom nogometu diljem Hrvatske',
+      paragraphs: [
+        'Nogometne lige i turniri (eng. Football Leagues and Tournaments) sportska je udruga sa sjedištem u Gračini 80, na križevačkom području. Osnivačka skupština održana je 23. ožujka 2026., a udruga je 20. travnja 2026. upisana u Registar udruga Republike Hrvatske pod registarskim brojem 06001657. Njezin je temeljni cilj promicati sport – posebno nogomet i mali nogomet – te poticati sportsku rekreaciju na razini cijele Hrvatske.',
+        'Među upisanim djelatnostima udruge su organizacija natjecanja i turnira, razvoj amaterskog sporta, povezivanje sportskih organizacija, uključivanje mladih u sport i promicanje fair playa. Iako je prvo veliko natjecanje pod okriljem novoosnovane udruge održano u Križevcima, udruga djeluje kao otvorena platforma za organizaciju i podršku turnirima te ligama u svim krajevima Hrvatske.',
+        'Uz ime udruge danas se veže malonogometna liga Dobrosusjedski odnosi Križevci, za koju je u sezoni 2026. udruga unosila i uređivala podatke o utakmicama, rasporedima i rezultatima na platformi Sofascore. Pritom povijest samog natjecanja treba razlikovati od povijesti današnje udruge: utakmice, strijelci i poredak Dobrosusjedskih odnosa bilježeni su još sredinom prošlog desetljeća, najmanje od dokumentirane sezone 2015. godine.',
+      ],
+    },
+    {
+      id: 'sezona-2015',
+      eyebrow: 'Dokumentirana sezona 2015.',
+      title: 'Liga koja je u proljeće 2015. okupila 24 momčadi',
+      paragraphs: [
+        'U proljeće 2015. godine mininogometna liga Dobrosusjedski odnosi okupljala je čak 24 momčadi, uz redovito vođenje rezultata, strijelaca, sudaca i ligaškog poretka, dok je glavni organizator natjecanja bio Alen Miholić. Među momčadima iz tadašnjih zapisa nalaze se Kalnički sir, Templars, Majurec, Kockice, Gračina, Ruševac 2015 i Šumarija Križevačko pivo.',
+        'Vrijedan presjek te sezone daje sedmo kolo, odigrano od 8. do 10. svibnja 2015. godine: Majurec je svladao Templarse rezultatom 3:1, dok je Ruševac 2015 nadigrao Šumariju Križevačko pivo sa 6:2. Za Ruševac su po dva pogotka postigli Matija Ištvanović i Matija Kuća, a po jednom su se u strijelce upisali Luka i Dejan Ištvanović. Takvi zapisi uz same rezultate trajno čuvaju imena ljudi i ekipa koji su gradili natjecanje.',
+      ],
+    },
+    {
+      id: 'reprezentacija-2015',
+      eyebrow: 'Vrsar i Ivanić-Grad 2015.',
+      title: 'Od ligaških igrališta do popisa hrvatske mininogometne reprezentacije',
+      paragraphs: [
+        'Sezona 2015. bila je i polazište za lokalni izbor igrača koji su dobili priliku boriti se za mjesto u hrvatskoj mininogometnoj reprezentaciji. U lokalnom izboru kandidata sudjelovalo je 336 igrača, a glasovali su voditelji svih 24 momčadi i organizatori natjecanja kako bi desetorica s najviše glasova otišla na reprezentativnu selekciju u Ivanić-Gradu.',
+        'U rujnu iste godine, na konačnom popisu hrvatske reprezentacije za Europsko prvenstvo u Vrsaru (održano od 21. do 27. rujna 2015.), našla su se trojica igrača s križevačkog područja: Aleksandar Korenika, Stjepan Korenika i Antonio Picig – izniman trenutak u kojem su se imena s lokalnih terena našla na europskoj smotri.',
+      ],
+    },
+    {
+      id: 'kup-i-2016',
+      eyebrow: 'Županijski kup i ljeto 2016.',
+      title: 'Caffe bar Bonus u Županijskom kupu te sezona 2016. s dvije jakosne lige',
+      paragraphs: [
+        'Pobjednik Dobrosusjedskih odnosa dobio je priliku odmjeriti snage i s predstavnikom koprivničkog mininogometa: 19. ožujka 2016. u susretu za Županijski mininogometni kup sastali su se Petgrad/OPG Radiček (prvak šeste sezone koprivničke KC lige) i Caffe bar Bonus (pobjednik lige Dobrosusjedski odnosi). Koprivnički sastav slavio je u tom kup-ogledu rezultatom 2:0 pogocima Galinca i Jagića.',
+        'Već u ljeto 2016. Dobrosusjedski odnosi okupili su 17 momčadi podijeljenih u dvije jakosne skupine – devet u prvoj i osam u drugoj ligi – uz jednokružni sustav bez naknadnog doigravanja. Igralo se na igralištima kod Srednje škole „Ivan Seljanec” i Gimnazije Ivana Zakmardija Dijankovečkoga u Križevcima te kod Osnovne škole Kalnik.',
+        'U trećem kolu, odigranom 2. srpnja 2016. kod SŠ „Ivan Seljanec”, susret između ekipa Križevci.info Raven i Gornji Cubinec završio je 3:3, a Matija Španić preuzeo je vrh ljestvice strijelaca prve lige. U drugoj su ligi Križevački štatuti svladali Caffe bar King 4:0, Muharić prijevoz bio je bolji od Gračina Boysa 5:2, a Sveti Benedikt pobijedio je Elektromaterijal F. T. P. Tomac rezultatom 3:1.',
+      ],
+    },
+    {
+      id: 'povratak-2026-i-fermoy',
+      eyebrow: 'Sezona 2026. i irska poveznica',
+      title: 'Povratak nakon deset godina stanke i priča iza imena Croatia Fermoy',
+      paragraphs: [
+        'Nakon desetogodišnje stanke, liga Dobrosusjedski odnosi vratila se u svibnju 2026. godine (sezona na Sofascoreu vođena je od 8. svibnja do završnog kola 25. rujna 2026.) pod pokroviteljstvom Grada Križevaca te uz podršku sponzora i partnera. Dvanaest momčadi odigralo je 11 uzbudljivih kola, a uoči posljednje večeri čak su četiri ekipe još bile u konkurenciji za naslov prvaka. Konačni pobjednik postao je Allplan Croatia Fermoy, ispred MNK Buldožera i MNK Sv. Vid Vrbovca.',
+        'Ime prvaka povratničke sezone nosi i zanimljivu međunarodnu nogometnu poveznicu: u lipnju 2021. Alen Miholić bio je među utemeljiteljima kluba FC Croatia Fermoy u Irskoj. Taj je klub u Corku osvojio rekreacijsku Leisure League u konkurenciji osam klubova, ostvarivši svih 14 pobjeda i maksimalna 42 boda – zaseban sportski uspjeh iz irskog natjecanja na koji simbolično podsjeća ime križevačkog prvaka iz 2026., ekipe Allplan Croatia Fermoy.',
+        'Upravo kontinuitet – poput ekipe Templars koja se pojavljuje u zapisima iz svibnja 2015., a 2026. osvaja priznanje za fair play zajedno s ekipom Izvan forme – pokazuje zašto vrijedi sustavno čuvati arhivu tablica, pojedinih kola, sastava, strijelaca i fotografija svih naših budućih natjecanja u Hrvatskoj.',
+      ],
+    },
+  ] as StorySection[],
   timeline: [
     {
-      year: 'Tradicija',
-      title: 'Korijeni lige "Dobrosusjedski odnosi" u Križevcima',
-      text: 'Kultna križevačka rekreativna liga godinama je gradila prepoznatljivi identitet večernjeg malog nogometa i kvartovskog druženja.',
+      year: 'Proljeće – Rujan 2015.',
+      title: 'Dokumentirana sezona s 24 momčadi i trojica igrača na EP-u u Vrsaru',
+      text: 'U ligi nastupa 24 ekipa uz lokalni izbor među 336 igrača za reprezentativnu selekciju u Ivanić-Gradu, a Aleksandar Korenika, Stjepan Korenika i Antonio Picig ulaze na popis za EP u Vrsaru.',
     },
     {
-      year: 'Osnivanje',
-      title: 'Registracija Udruge "Nogometne lige i turniri"',
-      text: 'Okupljanjem organizacijskog tima udruga postavlja čvrst temelj za cjelogodišnja natjecanja, turnire i rad sa sportskom zajednicom.',
+      year: 'Ožujak – Srpanj 2016.',
+      title: 'Županijski kup i sezona sa 17 ekipa u dvije jakosne skupine',
+      text: 'Caffe bar Bonus predstavlja ligu u Županijskom mininogometnom kupu, a ljetna sezona igra se u dvije lige (9 + 8 momčadi) u Križevcima i na Kalniku.',
     },
     {
-      year: 'Svibanj 2026.',
-      title: 'Veliki povratak lige "Dobrosusjedski odnosi" nakon 10 godina',
-      text: 'Pod reflektorima vanjskog igrališta Gimnazije u Križevcima ponovno je pokrenuta liga s 12 momčadi, 11 uzbudljivih kola i praćenjem na Sofascoreu.',
+      year: 'Lipanj 2021.',
+      title: 'Irska nogometna priča: FC Croatia Fermoy u Corku',
+      text: 'Alen Miholić sudjeluje u osnivanju kluba FC Croatia Fermoy u Irskoj, koji osvaja Leisure League u Corku s maksimalnim učinkom od 14 pobjeda i 42 boda.',
     },
     {
-      year: 'Zima 2026./2027.',
-      title: 'Širenje kalendara na dvoranske kupove i mlade uzraste',
-      text: 'Uz uspješno zaključenu ligu (prvak Allplan Croatia Fermoy), udruga nastavlja s organizacijom dvoranskih turnira i kupova za mlade.',
+      year: '23.03. i 20.04.2026.',
+      title: 'Osnivanje i upis Udruge „Nogometne lige i turniri” u Registar udruga RH',
+      text: 'Sa sjedištem u Gračini 80 osniva se udruga (Football Leagues and Tournaments) usmjerena na organizaciju nogometnih i malonogometnih natjecanja, razvoj amaterskog sporta i uključivanje mladih.',
+    },
+    {
+      year: 'Svibanj – 25.09.2026.',
+      title: 'Povratnička sezona lige „Dobrosusjedski odnosi” i naslov Allplan Croatia Fermoya',
+      text: 'Dvanaest momčadi odigrava 11 kola uz digitalnu evidenciju udruge na Sofascoreu; naslov osvaja Allplan Croatia Fermoy ispred MNK Buldožera i MNK Sv. Vid Vrbovca.',
     },
   ],
   venues: [
     {
-      name: 'Vanjsko igralište Gimnazije I. Z. Dijankovečkog Križevci',
-      type: 'Dom lige "Dobrosusjedski odnosi" • Reflektori',
-      address: 'Ulica Milislava Demerca, Križevci',
-      features: 'Kultno vanjsko igralište pod reflektorima za večernje utakmice petkom uz odličnu atmosferu uz teren.',
+      name: 'Partnerski tereni i dvorane diljem Hrvatske',
+      type: 'Nacionalna mreža u razvoju',
+      address: 'Otvoreno za gradove, općine, klubove i rekreativne centre u RH',
+      features: 'Suradnja s lokalnim samoupravama i sportskim centrima na organizaciji turnira, kupova i rekreativnih liga.',
     },
     {
-      name: 'Školsko-sportska dvorana Križevci (GŠSD)',
-      type: 'Dvoranski futsal (parket)',
-      address: 'Potočka ulica, Križevci',
-      features: 'Grijana dvorana, tribine za 800+ gledatelja, svlačionice, semafor i ugostiteljski punkt.',
+      name: 'Igrališta Gimnazije I. Z. Dijankovečkoga i SŠ „Ivan Seljanec”',
+      type: 'Dosadašnje lokacije lige u Križevcima',
+      address: 'Križevci',
+      features: 'Vanjska školska igrališta na kojima su igrane dokumentirane sezone 2015., 2016. i povratnička sezona 2026. pod reflektorima.',
     },
     {
-      name: 'ŠRC Križevci & Prigorski sportski tereni',
-      type: 'Prirodna i umjetna trava',
-      address: 'Križevci i okolica (Fodrovec, Sv. Ivan Žabno, Sv. Petar Orehovec, Kalnik)',
-      features: 'Tereni za kupove mladih uzrasta i gostujuće jednodnevne turnire.',
+      name: 'Igralište kod Osnovne škole Kalnik',
+      type: 'Povijesna lokacija iz arhive lige (2016.)',
+      address: 'Kalnik',
+      features: 'Jedna od lokacija ljetne sezone 2016. u kojoj se natjecalo 17 momčadi podijeljenih u dvije jakosne skupine.',
     },
   ],
   partners: [
-    { name: 'Grad Križevci', tier: 'Pokrovitelj' },
-    { name: 'Zajednica športskih udruga Križevci', tier: 'Sportski partner' },
-    { name: 'Sofascore Minifootball', tier: 'Digitalno praćenje rezultata' },
-    { name: 'Lokalni ugostitelji i obrtnici Križevaca', tier: 'Partneri ekipa i lige' },
-    { name: 'Koprivničko-križevačka županija', tier: 'Institucionalna podrška' },
-    { name: 'Lokalni mediji Prigorja', tier: 'Medijsko praćenje' },
+    { name: 'Sportski klubovi i udruge u RH', tier: 'Povezivanje sportskih organizacija' },
+    { name: 'Gradovi i lokalne zajednice', tier: 'Institucionalni pokrovitelji natjecanja' },
+    { name: 'Sofascore Minifootball', tier: 'Digitalni prikaz rasporeda i rezultata' },
+    { name: 'Grad Križevci', tier: 'Pokrovitelj sezone Dobrosusjedski odnosi 2026.' },
+    { name: 'Sponzori ekipa i obrtnici', tier: 'Podrška amaterskom sportu' },
+    { name: 'Škole nogometa i pedagozi', tier: 'Programi za djecu i mlade' },
   ],
 };
 
+export const season2026Awards: SeasonAward[] = [
+  { title: 'Prvak lige', winner: 'Allplan Croatia Fermoy', teamOrNote: '1. mjesto nakon 11 kola' },
+  { title: 'Drugo mjesto', winner: 'MNK Buldožeri', teamOrNote: 'Doprvak sezone 2026.' },
+  { title: 'Treće mjesto', winner: 'MNK Sv. Vid Vrbovec', teamOrNote: '3. mjesto sezone 2026.' },
+  { title: 'Najbolji igrač', winner: 'Ivan Slavi', teamOrNote: 'MNK Buldožeri' },
+  { title: 'Najbolji vratar', winner: 'Jakov Car', teamOrNote: 'Allplan Croatia Fermoy' },
+  { title: 'Najbolji strijelac', winner: 'Martin Horvat', teamOrNote: 'Tehnodiv Servis' },
+  { title: 'Fair play priznanje', winner: 'Templars i Izvan forme', teamOrNote: 'Nagrada za korektnost i sportski duh' },
+];
+
 export const competitions: Competition[] = [
   {
-    id: 'dobrosusjedski-odnosi',
+    id: 'dobrosusjedski-odnosi-2026',
     slug: 'malonogometna-liga-dobrosusjedski-odnosi',
-    title: 'Malonogometna liga "Dobrosusjedski odnosi" Križevci',
-    shortTitle: 'Liga Dobrosusjedski odnosi',
-    subtitle: 'Kultna križevačka malonogometna liga pod reflektorima u organizaciji naše udruge',
+    title: 'Malonogometna liga „Dobrosusjedski odnosi” Križevci (2026.)',
+    shortTitle: 'Dobrosusjedski odnosi 2026.',
+    subtitle: 'Povratnička sezona nakon deset godina stanke s 12 momčadi i dramatičnom završnicom',
     category: 'Liga',
     status: 'zavrseno',
-    statusLabel: '11/11 kola • Prvak: Allplan Croatia Fermoy',
+    statusLabel: 'Završeno • Prvak: Allplan Croatia Fermoy',
     season: 'Sezona 2026.',
-    dates: 'Svibanj – Rujan 2026. (11 kola)',
-    location: 'Vanjsko igralište Gimnazije u Križevcima',
-    surface: 'Vanjska podloga pod reflektorima',
-    format: '12 seniorskih ekipa • jednokružni ligaški sustav (11 kola)',
-    matchDuration: 'Večernji termini petkom pod reflektorima',
+    dates: '08. svibnja – 25. rujna 2026. (11 kola)',
+    location: 'Križevci (pod pokroviteljstvom Grada Križevaca)',
+    surface: 'Vanjsko igralište pod reflektorima',
+    format: '12 momčadi • jednokružni ligaški sustav (11 kola)',
+    matchDuration: 'Večernji termini • vođenje rezultata na Sofascoreu',
     maxTeams: 12,
     registeredTeams: 12,
-    entryFee: 'Sezonska ekipna kotizacija',
-    prizePool: 'Pehari, medalje, nagradni fond i pojedinačna priznanja',
+    entryFee: 'Sezonska kotizacija',
+    prizePool: 'Pehari, medalje te pojedinačna i fair play priznanja',
     prizes: [
-      { place: '1. mjesto – Allplan Croatia Fermoy', reward: '26 bodova (8-2-1, 30:8) – Prvak lige zbog boljeg međusobnog omjera' },
-      { place: '2. mjesto – Buldožeri', reward: '26 bodova (8-2-1, 39:7) – Najefikasniji napad i obrana lige (+32)' },
-      { place: '3. mjesto – Sveti Vid Vrbovec', reward: '25 bodova (8-1-2, 30:10) – Brončani pehar i medalje' },
-      { place: '4. mjesto – MNK Fodrovec', reward: '23 boda (7-2-2, 31:12) + nagrade za najboljeg strijelca, vratara, igrača i Fair-play' },
+      { place: 'Prvak lige', reward: 'Allplan Croatia Fermoy' },
+      { place: 'Drugo mjesto', reward: 'MNK Buldožeri' },
+      { place: 'Treće mjesto', reward: 'MNK Sv. Vid Vrbovec' },
+      { place: 'Pojedinačna priznanja', reward: 'Ivan Slavi (igrač), Jakov Car (vratar), Martin Horvat (strijelac)' },
+      { place: 'Fair play', reward: 'Templars i Izvan forme' },
     ],
     image: 'images/summer-league-turf.jpg',
     featured: true,
     description:
-      'Nakon deset godina stanke, Udruga "Nogometne lige i turniri" ponovno je oživjela legendarno križevačko natjecanje "Dobrosusjedski odnosi". Kroz 11 napetih kola na vanjskom igralištu Gimnazije u Križevcima nastupilo je 12 odličnih ekipa, postignuto je ukupno 270 pogodaka, a svi rezultati i statistike službeno su praćeni i na platformi Sofascore.',
+      'Povratnička sezona kultne križevačke malonogometne lige okupila je u proljeće i ljeto 2026. godine 12 ekipa. Udruga Nogometne lige i turniri pod svojim je imenom unosila i uređivala podatke o susretima na Sofascoreu, a uoči posljednjeg 11. kola održanog 25. rujna čak su četiri momčadi bile u igri za naslov prvaka.',
     highlights: [
-      'Dramatična utrka za naslov do zadnjeg kola: Allplan Croatia Fermoy i Buldožeri izjednačeni na 26 bodova',
-      'Službena statistika, forma ekipa i profili svih 12 momčadi na platformi Sofascore Minifootball',
-      'Ukupno 66 odigranih utakmica i čak 270 postignutih pogodaka (prosjek preko 4 gola po susretu)',
-      'Velika posjećenost petkom navečer pod reflektorima u srcu Križevaca',
+      'Četiri ekipe u izravnoj utrci za naslov prvaka sve do posljednjeg kola 25. rujna 2026.',
+      'Najbolji igrač Ivan Slavi (MNK Buldožeri), najbolji vratar Jakov Car (Allplan Croatia Fermoy), najbolji strijelac Martin Horvat (Tehnodiv Servis)',
+      'Fair play priznanje pripalo ekipama Templars i Izvan forme',
+      'Javno dostupni rasporedi, rezultati i profili momčadi na Sofascoreu',
     ],
     rulesSummary: [
-      'Jednokružni bod-sustav kroz 11 kola (svatko sa svakim): pobjeda 3 boda, remi 1 bod, poraz 0 bodova.',
-      'U slučaju istog broja bodova o poretku odlučuje međusobni susret (Allplan Croatia Fermoy svladao je Buldožere u izravnom dvoboju).',
-      'Sve utakmice vode licencirani suci uz službeni zapisnik i objavu rezultata.',
+      'Jednokružni ligaški sustav kroz 11 kola u konkurenciji 12 prijavljenih momčadi.',
+      'Pobjeda donosi 3 boda, neriješen ishod 1 bod, a poraz 0 bodova.',
+      'Natjecanje je održano uz podršku sponzora, partnera i pokroviteljstvo Grada Križevaca.',
     ],
   },
   {
-    id: 'zimski-kup',
-    slug: 'zimski-malonogometni-turnir-krizevci',
-    title: 'Zimski malonogometni turnir "Križevci Kup"',
-    shortTitle: 'Zimski Kup Križevci',
-    subtitle: 'Dvoranski malonogometni spektakl prosinca i siječnja u Prigorju',
-    category: 'Turnir',
+    id: 'nacionalne-rekreativne-lige',
+    slug: 'organizacija-rekreativnih-liga-hrvatska',
+    title: 'Partnerske i rekreativne malonogometne lige u Hrvatskoj',
+    shortTitle: 'Rekreativne lige u RH',
+    subtitle: 'Pokretanje i organizacijska podrška malonogometnim ligama u gradovima i općinama diljem Hrvatske',
+    category: 'Liga',
     status: 'prijave-u-tijeku',
-    statusLabel: 'Prijave otvorene',
-    season: 'Zima 2026./2027.',
-    dates: '12. prosinca 2026. – 06. siječnja 2027.',
-    registrationDeadline: '08. prosinca 2026. u 20:00 h',
-    location: 'Školsko-sportska dvorana Križevci',
-    surface: 'Dvoranski parket (futsal lopta br. 4)',
-    format: '5 + 1 (maks. 12 prijavljenih igrača po ekipi)',
-    matchDuration: '2 × 15 minuta (završnica 2 × 20 min)',
-    maxTeams: 32,
-    registeredTeams: 24,
-    entryFee: '150 € po ekipi',
-    prizePool: '6.500 € + pehari i pojedinačne nagrade',
+    statusLabel: 'Otvoreno za prijave i suradnju',
+    season: 'Sezona 2026./2027.',
+    dates: 'Cjelogodišnji program suradnje i prijava',
+    location: 'Republika Hrvatska (gradovi i sportske sredine partneri)',
+    surface: 'Vanjski tereni s umjetnom/prirodnom travom i sportske dvorane',
+    format: 'Prilagodljiv ligaški sustav (jednokružno / dvokružno / skupine)',
+    matchDuration: 'Sukladno propozicijama pojedine lige',
+    entryFee: 'Prema propozicijama natjecanja',
+    prizePool: 'Pehari, medalje, službena statistika i završni kup prvaka',
     prizes: [
-      { place: '1. mjesto', reward: '3.500 € + prijelazni i trajni pehar + zlatne medalje' },
-      { place: '2. mjesto', reward: '1.700 € + pehar + srebrne medalje' },
-      { place: '3. mjesto', reward: '900 € + pehar + brončane medalje' },
-      { place: '4. mjesto & Fair-play', reward: '400 € + nagrade za najboljeg igrača, strijelca i vratara' },
+      { place: 'Ekipne nagrade', reward: 'Pehari i medalje za najbolje tri momčadi svake lige' },
+      { place: 'Pojedinačne nagrade', reward: 'Najbolji igrač, najbolji strijelac, najbolji vratar i Fair play ekipa' },
+    ],
+    image: 'images/hero-night-tournament.jpg',
+    featured: true,
+    description:
+      'Sukladno ciljevima udruge – razvoju amaterskog sporta i povezivanju sportskih organizacija – nudimo cjelovitu organizacijsku, pravilničku i digitalnu podršku za pokretanje ili unaprjeđenje rekreativnih malonogometnih liga u novim sredinama diljem Hrvatske.',
+    highlights: [
+      'Izrada propozicija, kalendara natjecanja i delegiranja utakmica',
+      'Digitalno vođenje rezultata, tablica i arhive strijelaca po uzoru na dokazani model',
+      'Povezivanje pobjednika lokalnih liga kroz međuregionalne i kup susrete',
+    ],
+    rulesSummary: [
+      'Mogućnost prijave pojedinačnih momčadi ili lokalnih koordinatora koji žele pokrenuti ligu u svom mjestu.',
+      'Naglasak na fair playu, sigurnosti sudionika i potpunoj transparentnosti rezultata.',
+    ],
+  },
+  {
+    id: 'otvoreni-malonogometni-turniri',
+    slug: 'malonogometni-kupovi-i-turniri',
+    title: 'Otvoreni malonogometni turniri i kup natjecanja',
+    shortTitle: 'Turniri i kupovi',
+    subtitle: 'Dvoranski i vanjski turniri za seniorske, kvartovske i korporativne ekipe',
+    category: 'Turnir',
+    status: 'u-najavi',
+    statusLabel: 'Novi termini u pripremi',
+    season: '2026./2027.',
+    dates: 'Najava termina u rubrici Novosti',
+    location: 'Sportske dvorane i vanjski tereni u Hrvatskoj',
+    surface: 'Parket / umjetna trava / podloga s mantinelom',
+    format: '5+1 ili 3v3 (skupine + eliminacijska završnica)',
+    matchDuration: '2 × 15 min (ili prema formatu turnira)',
+    entryFee: 'Objavljuje se uz raspis svakog turnira',
+    prizePool: 'Nagradni fond, pehari i pojedinačna priznanja',
+    prizes: [
+      { place: '1. – 3. mjesto', reward: 'Pehari, medalje i nagradni fond turnira' },
+      { place: 'Najbolji pojedinci', reward: 'Najbolji igrač, strijelac, vratar i Fair play trofej' },
     ],
     image: 'images/winter-futsal-cup.jpg',
     featured: true,
     description:
-      'Zimski dvoranski turnir okuplja malonogometne ekipe iz Križevaca, Vrbovca, Koprivnice, Bjelovara i cijele regije. Natjecanje započinje razigravanjem po skupinama (svakoj ekipi zajamčene najmanje 3 utakmice), nakon čega slijedi nokaut završnica pred punim tribinama.',
+      'Višednevni i vikend malonogometni turniri osmišljeni za okupljanje amaterskih i rekreativnih ekipa iz različitih županija, uz zajamčen minimalni broj utakmica u skupini i atraktivnu nokaut završnicu.',
     highlights: [
-      'Zajamčene minimalno 3 utakmice u skupini za svaku prijavljenu ekipu',
-      'Licencirani futsal suci i elektronički zapisnik sa statistikom strijelaca',
-      'Bogata tombola za gledatelje i revijalne utakmice uoči velikog finala',
-      'Mogućnost prilagodbe termina u grupnoj fazi za gostujuće ekipe',
+      'Jasne propozicije, točna satnica i licencirano suđenje',
+      'Praćenje rezultata i objava fotografija te izvještaja na stranici udruge',
+      'Otvoreno za prijavu ekipa iz cijele Hrvatske',
     ],
     rulesSummary: [
-      'Igra se po prilagođenim FIFA futsal pravilima (akumulirani 6. prekršaj = udarac s 10 m).',
-      'Svaka ekipa može prijaviti do 12 igrača do početka svoje prve utakmice u nokaut fazi.',
-      'Igrač može nastupati isključivo za jednu ekipu unutar iste kategorije turnira.',
-      'U slučaju neriješenog rezultata u nokaut fazi izvode se šesterci (3 serije).',
+      'Svaki turnir ima poseban raspis s navedenim rokom prijava, brojem igrača i pravilima igre.',
+      'Igrač unutar iste kategorije turnira može nastupati za jednu momčad.',
     ],
   },
   {
-    id: 'veteranska-liga',
-    slug: 'rekreativna-i-veteranska-liga-krizevci',
-    title: 'Rekreativna i veteranska liga Križevci 35+',
-    shortTitle: 'Veteranska Liga 35+',
-    subtitle: 'Liga majstora nogometa, poduzeća i rekreativaca s naglaskom na fair-play',
-    category: 'Veterani',
-    status: 'aktivno',
-    statusLabel: 'U tijeku • 7. kolo',
-    season: 'Jesen / Zima 2026.',
-    dates: 'Rujan – Studeni 2026.',
-    location: 'Sportski park Križevci / GŠSD Križevci',
-    surface: 'Umjetna trava / Dvorana (ovisno o vremenu)',
-    format: '5 + 1 (igrači 35+ godina uz do 1 mlađeg vratara)',
-    matchDuration: '2 × 18 minuta',
-    maxTeams: 10,
-    registeredTeams: 8,
-    entryFee: '180 € po ekipi',
-    prizePool: 'Pehari, sponzorski paketi i završna večera za sve ekipe',
-    prizes: [
-      { place: '1. – 3. mjesto', reward: 'Pehari, medalje i poklon bonovi lokalnih partnera' },
-      { place: 'Trofej Fair-Play', reward: 'Posebno priznanje i ekipno druženje za najkorektniju momčad' },
-    ],
-    image: 'images/veterans-fairplay.jpg',
-    featured: true,
-    description:
-      'Namijenjena bivšim igračima, rekreativcima i radnim kolektivima koji žele redovitu tjednu rekreaciju u uređenom i prijateljskom okruženju bez grubih startova.',
-    highlights: [
-      'Stroža pravila protiv uklizavanja radi prevencije ozljeda',
-      'Termini prilagođeni zaposlenima i obiteljskim obvezama',
-      'Zajednička završna svečanost dodjele priznanja za sve sudionike',
-    ],
-    rulesSummary: [
-      'Pravo nastupa u polju imaju igrači koji u tekućoj kalendarskoj godini navršavaju 35 godina.',
-      'Klizeći start u duelu s protivničkim igračem kažnjava se neizravnim udarcem i opomenom.',
-    ],
-  },
-  {
-    id: 'kup-mladih-nada',
-    slug: 'kup-mladih-nada-prigorja',
-    title: 'Kup mladih nada Prigorja (U-9, U-11, U-13)',
-    shortTitle: 'Kup Mladih Nada',
-    subtitle: 'Proljetni festival dječjeg nogometa, osmijeha i sportskog prijateljstva',
+    id: 'programi-i-turniri-za-mlade',
+    slug: 'turniri-za-djecu-i-mlade',
+    title: 'Turniri i sportski susreti za djecu i mlade',
+    shortTitle: 'Turniri za mlade',
+    subtitle: 'Uključivanje djece i mladih u nogomet kroz druženje, igru i učenje fair playa',
     category: 'Mladi',
     status: 'u-najavi',
-    statusLabel: 'Prijave od ožujka 2027.',
-    season: 'Proljeće 2027.',
-    dates: '17. – 18. travnja 2027.',
-    registrationDeadline: '10. travnja 2027.',
-    location: 'ŠRC Križevci – Glavni i pomoćni tereni',
+    statusLabel: 'Program udruge u pripremi',
+    season: '2027.',
+    dates: 'Proljetni i ljetni termini',
+    location: 'Partnerski tereni i škole nogometa u Hrvatskoj',
     surface: 'Prirodna i umjetna trava',
-    format: 'U-9 (6+1), U-11 (7+1), U-13 (7+1)',
-    matchDuration: '1 × 20 minuta',
-    maxTeams: 36,
-    registeredTeams: 8,
-    entryFee: '60 € po ekipi (uključen topli obrok i sok za svako dijete)',
-    prizePool: 'Pehari za najbolje + uspomena medalje za SVE mlade sudionike',
+    format: 'Uzrasne kategorije U-9, U-11, U-13 i U-15',
+    matchDuration: 'Prilagođeno dobnim skupinama uz leteće izmjene',
+    entryFee: 'Pristupačni uvjeti za škole nogometa i mlade ekipe',
+    prizePool: 'Pehari za najbolje i medalje uspomene za sudionike',
     prizes: [
-      { place: '1. – 4. mjesto po kategoriji', reward: 'Pehari i medalje + pojedinačne plakete ("Dream Team" turnira)' },
-      { place: 'Svi sudionici', reward: 'Zahvalnica i medalja sudjelovanja za svako prijavljeno dijete' },
+      { place: 'Najuspješnije ekipe', reward: 'Pehari, medalje i priznanja za sportsko ponašanje' },
+      { place: 'Sudionici', reward: 'Poticanje jednakih prilika za igru i timskog duha' },
     ],
     image: 'images/youth-cup-kids.jpg',
     description:
-      'Dvodnevni turnir škola nogometa s područja sjeverozapadne i središnje Hrvatske. Glavni cilj turnira je razvoj ljubavi prema sportu, druženje vršnjaka i promocija zdravih navika u obiteljskoj atmosferi.',
+      'Uključivanje mladih u sport jedna je od temeljnih statutarnih djelatnosti udruge Nogometne lige i turniri. Cilj nam je u suradnji sa školama nogometa, klubovima i obrazovnim ustanovama organizirati razvojne turnire bez rezultatskog pritiska.',
     highlights: [
-      'Osiguran ručak, voće i osvježenje za sve mlade igrače i trenere',
-      'Liječnička služba i službeni fotografi prisutni tijekom oba dana turnira',
-      'Poligon vještina i natjecanje u preciznosti udarca između utakmica',
+      'Naglasak na ravnomjernoj minutaži, zdravlju i fair playu od najranije dobi',
+      'Povezivanje škola nogometa iz različitih regija Hrvatske',
+      'Sigurno i poticajno okruženje za mlade sportaše i roditelje',
     ],
     rulesSummary: [
-      'Obvezna sportska iskaznica ili valjani dokument s datumom rođenja te suglasnost roditelja.',
-      'Leteće izmjene bez ograničenja kako bi sva djeca dobila jednaku minutažu.',
+      'Obvezna suglasnost roditelja/skrbnika i valjana evidencija godišta igrača.',
+      'Pravila prilagođena uzrastu uz maksimalno poticanje pozitivnog navijanja uz teren.',
     ],
   },
   {
-    id: 'nocni-turnir-3v3',
-    slug: 'ljetni-nocni-turnir-srce-prigorja',
-    title: 'Ljetni noćni turnir "Srce Prigorja" 3 na 3 (Mantinela)',
-    shortTitle: 'Noćni 3v3 Turnir',
-    subtitle: 'Atraktivni vikend uličnog nogometa na male golove uz glazbu pod zvijezdama',
-    category: 'Turnir',
-    status: 'u-najavi',
-    statusLabel: 'U najavi • Kolovoz 2027.',
-    season: 'Ljeto 2027.',
-    dates: 'Kolovoz 2027.',
-    location: 'Križevci – Vanjsko igralište uz mantinelu',
-    surface: 'Vanjska podloga s mantinelom',
-    format: '3 na 3 bez vratara (maks. 5 igrača)',
-    matchDuration: '2 × 8 minuta čistog tempa',
-    maxTeams: 24,
-    registeredTeams: 0,
-    entryFee: '70 € po ekipi',
-    prizePool: '1.800 € + natjecanje u izvođenju penala',
+    id: 'arhiva-dobrosusjedski-2015-2016',
+    slug: 'arhiva-dobrosusjedski-odnosi-2015-2016',
+    title: 'Povijesna arhiva lige „Dobrosusjedski odnosi” (2015. – 2016.)',
+    shortTitle: 'Arhiva 2015. – 2016.',
+    subtitle: 'Dokumentirane sezone s 24 i 17 momčadi, reprezentativci u Vrsaru i Županijski kup',
+    category: 'Arhiva',
+    status: 'zavrseno',
+    statusLabel: 'Povijesna arhiva natjecanja',
+    season: 'Dokumentirane sezone 2015. i 2016.',
+    dates: 'Proljeće 2015. • Ožujak 2016. • Ljeto 2016.',
+    location: 'Križevci (SŠ Ivan Seljanec, Gimnazija), Kalnik i Koprivnica',
+    surface: 'Vanjska školska i sportska igrališta',
+    format: '2015.: 24 momčadi | 2016.: 17 momčadi u dvije jakosne skupine (9 + 8)',
+    matchDuration: 'Jednokružni ligaški sustav u sezoni 2016.',
+    entryFee: 'Arhivsko izdanje',
+    prizePool: 'Povijesni zapisi, kup prvaka i reprezentativna selekcija',
     prizes: [
-      { place: '1. mjesto', reward: '1.000 € + pehar' },
-      { place: '2. mjesto', reward: '500 € + pehar' },
-      { place: '3. mjesto', reward: '300 € + pehar' },
+      { place: 'Sezona 2015. – Reprezentacija', reward: 'Aleksandar Korenika, Stjepan Korenika i Antonio Picig na popisu za EP u Vrsaru' },
+      { place: 'Županijski kup (19.03.2016.)', reward: 'Caffe bar Bonus kao pobjednik lige u susretu protiv Petgrad/OPG Radiček (0:2)' },
+      { place: 'Sezona 2016. (1. i 2. liga)', reward: '17 ekipa na terenima u Križevcima i kod OŠ Kalnik' },
     ],
-    image: 'images/hero-night-tournament.jpg',
+    image: 'images/veterans-fairplay.jpg',
     description:
-      'Brz, dinamičan i publici izuzetno atraktivan format 3v3 u kavezu/mantineli uz paralelno pojedinačno natjecanje u raspucavanju penala.',
+      'Prije osnivanja današnje udruge 2026. godine, malonogometna liga Dobrosusjedski odnosi dokumentirana je najmanje od 2015. godine pod organizacijskim vodstvom Alena Miholića. Ova rubrika čuva provjerene povijesne podatke o momčadima, kolima i igračima.',
     highlights: [
-      'Neprekidna igra uz mantinelu s mnoštvom driblinga i pogodaka',
-      'Pojedinačni turnir u penalima s fondom nagrada za publiku i igrače',
-      'Večernji ljetni ugođaj uz glazbeni i ugostiteljski program',
+      'Proljeće 2015.: 24 momčadi i 336 igrača u lokalnom izboru za selekciju u Ivanić-Gradu',
+      '7. kolo (8.–10.05.2015.): Majurec – Templars 3:1; Ruševac 2015 – Šumarija Križevačko pivo 6:2',
+      '3. kolo (02.07.2016.): Križevci.info Raven – Gornji Cubinec 3:3; Križevački štatuti – CB King 4:0; Muharić prijevoz – Gračina Boys 5:2; Sv. Benedikt – Elektromaterijal F.T.P. Tomac 3:1',
     ],
     rulesSummary: [
-      'Pogodak se priznaje isključivo s protivničke polovice terena.',
-      'Nema zaleđa ni auta na bočnim stranicama s mantinelom.',
+      'Godina 2015. navodi se kao dokumentirana sezona natjecanja, a ne nužno kao godina prvog izdanja lige.',
+      'U sezoni 2016. igralo se jednokružno u dvije jakosne skupine (9 + 8 ekipa) bez naknadnog doigravanja.',
     ],
   },
 ];
@@ -480,16 +526,16 @@ export const leagueTables: LeagueTableGroup[] = [
   {
     id: 'dobrosusjedski-odnosi-tablica',
     competitionSlug: 'malonogometna-liga-dobrosusjedski-odnosi',
-    label: 'Liga "Dobrosusjedski odnosi"',
-    updatedAt: 'Konačni poredak • Sofascore',
-    roundInfo: 'Ukupno — nakon 11. kola',
+    label: 'Dobrosusjedski odnosi Križevci 2026.',
+    updatedAt: 'Završno stanje • 25. rujna 2026.',
+    roundInfo: '11 odigranih kola (12 momčadi)',
     zoneLegend:
-      'Prvak lige je Allplan Croatia Fermoy zbog pobjede u međusobnom ogledu s ekipom Buldožeri (obje momčadi po 26 bodova). Klikom na ime ekipe ili oznaku forme (P/N/I) otvarate službene podatke na Sofascoreu.',
+      'Službeni poredak prve tri momčadi: 1. Allplan Croatia Fermoy, 2. MNK Buldožeri, 3. MNK Sv. Vid Vrbovec. Podaci o utakmicama i poretku vođeni su u sezoni 2026. na platformi Sofascore (kliknite na naziv momčadi ili oznaku forme P/N/I za prikaz detalja susreta).',
     rows: [
       {
         pos: 1,
         team: 'Allplan Croatia Fermoy',
-        placeOrigin: 'Križevci • Prvak lige',
+        placeOrigin: 'Prvak lige 2026.',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/allplan-croatia-fermoy/1222524',
         played: 11,
         won: 8,
@@ -511,7 +557,7 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 2,
         team: 'Buldožeri',
-        placeOrigin: 'MNK Buldožeri',
+        placeOrigin: '2. mjesto • MNK Buldožeri',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/mnk-buldozeri/1222359',
         played: 11,
         won: 8,
@@ -533,7 +579,7 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 3,
         team: 'Sveti Vid Vrbovec',
-        placeOrigin: 'Vrbovec',
+        placeOrigin: '3. mjesto • MNK Sv. Vid Vrbovec',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/mnk-sveti-vid-vrbovec/1222389',
         played: 11,
         won: 8,
@@ -555,7 +601,6 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 4,
         team: 'MNK Fodrovec',
-        placeOrigin: 'Fodrovec',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/mnk-fodrovec/1222388',
         played: 11,
         won: 7,
@@ -577,7 +622,6 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 5,
         team: 'Caffe Bar Faraon',
-        placeOrigin: 'Križevci / Prigorje',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/caffe-bar-faraon/1222357',
         played: 11,
         won: 7,
@@ -598,7 +642,7 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 6,
         team: 'Tehnodiv Servis',
-        placeOrigin: 'Križevci / Prigorje',
+        placeOrigin: 'Najbolji strijelac lige: Martin Horvat',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/tehnodiv-servis/1222385',
         played: 11,
         won: 5,
@@ -619,7 +663,6 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 7,
         team: 'Vargić-Agencija',
-        placeOrigin: 'Križevci / Prigorje',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/vargic-agencija/1222361',
         played: 11,
         won: 5,
@@ -640,7 +683,6 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 8,
         team: 'Caffe Bar Lampaš & Zlatarna Križevci',
-        placeOrigin: 'Križevci',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/caffe-bar-lampas-and-zlatarna-krizevci/1222360',
         played: 11,
         won: 4,
@@ -661,7 +703,7 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 9,
         team: 'Templars',
-        placeOrigin: 'Križevci / Prigorje',
+        placeOrigin: 'Dobitnik priznanja Fair play 2026.',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/templars/1222355',
         played: 11,
         won: 2,
@@ -682,7 +724,6 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 10,
         team: 'Očni Centar Visus',
-        placeOrigin: 'Križevci / Prigorje',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/ocni-centar-visus/1222384',
         played: 11,
         won: 2,
@@ -703,7 +744,6 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 11,
         team: 'Bez Sponzora',
-        placeOrigin: 'Križevci / Prigorje',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/bez-sponzora/1222358',
         played: 11,
         won: 1,
@@ -724,7 +764,7 @@ export const leagueTables: LeagueTableGroup[] = [
       {
         pos: 12,
         team: 'Izvan Forme',
-        placeOrigin: 'Križevci / Prigorje',
+        placeOrigin: 'Dobitnik priznanja Fair play 2026.',
         sofascoreUrl: 'https://www.sofascore.com/hr/minifootball/team/izvan-forme/1222525',
         played: 11,
         won: 0,
@@ -737,213 +777,197 @@ export const leagueTables: LeagueTableGroup[] = [
       },
     ],
   },
-  {
-    id: 'veterani-2026',
-    competitionSlug: 'rekreativna-i-veteranska-liga-krizevci',
-    label: 'Veteranska liga 35+ (Ogledni podaci)',
-    updatedAt: '22. studenoga 2026.',
-    roundInfo: 'Nakon 7. od 9 kola',
-    zoneLegend:
-      'Ogledna ljestvica veteranske lige – zamijenite stvarnim podacima u src/data/siteData.ts.',
-    rows: [
-      { pos: 1, team: 'Veterani Radnik KŽ', placeOrigin: 'Križevci', played: 7, won: 6, drawn: 1, lost: 0, goalsFor: 26, goalsAgainst: 8, points: 19, form: ['P', 'P', 'N', 'P', 'P'], zone: 'champion' },
-      { pos: 2, team: 'Stari Pajdaši Prigorje', placeOrigin: 'Križevci', played: 7, won: 5, drawn: 1, lost: 1, goalsFor: 21, goalsAgainst: 11, points: 16, form: ['P', 'I', 'P', 'P', 'P'], zone: 'playoff' },
-      { pos: 3, team: 'Metal-KŽ Kolektiv', placeOrigin: 'Križevci', played: 7, won: 4, drawn: 1, lost: 2, goalsFor: 18, goalsAgainst: 14, points: 13, form: ['N', 'P', 'P', 'I', 'P'] },
-      { pos: 4, team: 'Orehovec Legende 35+', placeOrigin: 'Sv. Petar Orehovec', played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 16, goalsAgainst: 15, points: 11, form: ['P', 'N', 'I', 'P', 'N'] },
-      { pos: 5, team: 'Žabno Veterani', placeOrigin: 'Sv. Ivan Žabno', played: 7, won: 2, drawn: 2, lost: 3, goalsFor: 14, goalsAgainst: 16, points: 8, form: ['I', 'N', 'P', 'I', 'N'] },
-      { pos: 6, team: 'Cubinec Rekreativa', placeOrigin: 'Cubinec', played: 7, won: 2, drawn: 0, lost: 5, goalsFor: 12, goalsAgainst: 20, points: 6, form: ['I', 'P', 'I', 'I', 'I'] },
-      { pos: 7, team: 'Kalnički Sokolovi 35+', placeOrigin: 'Kalnik', played: 7, won: 1, drawn: 1, lost: 5, goalsFor: 10, goalsAgainst: 21, points: 4, form: ['I', 'I', 'N', 'P', 'I'] },
-      { pos: 8, team: 'Prijatelji Sporta KŽ', placeOrigin: 'Križevci', played: 7, won: 1, drawn: 0, lost: 6, goalsFor: 8, goalsAgainst: 20, points: 3, form: ['I', 'I', 'I', 'I', 'P'] },
-    ],
-  },
 ];
 
 export const matches: MatchItem[] = [
   {
-    id: 'm1',
-    competitionId: 'zimski-kup',
-    competitionName: 'Zimski Kup Križevci',
-    round: '1. kolo – Otvaranje turnira',
-    date: 'Subota, 12.12.2026.',
-    time: '18:00',
-    venue: 'GŠSD Križevci',
-    homeTeam: 'Allplan Croatia Fermoy (Nositelj A1)',
-    awayTeam: 'Izvučeni par A2 (Ždrijeb 10.12.)',
-    status: 'najava',
-    summary: 'Svečano otvaranje Zimskog malonogometnog turnira u Križevcima predvode osvajači lige "Dobrosusjedski odnosi".',
-  },
-  {
-    id: 'm2',
-    competitionId: 'veteranska-liga',
-    competitionName: 'Veteranska liga 35+',
-    round: '8. kolo',
-    date: 'Nedjelja, 29.11.2026.',
-    time: '17:30',
-    venue: 'GŠSD Križevci',
-    homeTeam: 'Veterani Radnik KŽ',
-    awayTeam: 'Metal-KŽ Kolektiv',
-    status: 'najava',
-    referee: 'I. Šaško',
-    summary: 'Dvoboj vrha ljestvice u dvoranskom terminu veteranske lige.',
-  },
-  {
-    id: 'm3',
-    competitionId: 'dobrosusjedski-odnosi',
-    competitionName: 'Liga "Dobrosusjedski odnosi"',
-    round: 'Derbi za naslov prvaka',
-    date: 'Sezona 2026.',
-    time: '21:00',
-    venue: 'Vanjsko igralište Gimnazije Križevci',
-    homeTeam: 'Allplan Croatia Fermoy',
-    awayTeam: 'Buldožeri',
-    homeScore: 2,
-    awayScore: 1,
-    status: 'odigrano',
-    sofascoreMatchUrl:
-      'https://www.sofascore.com/minifootball/match/allplan-croatia-fermoy-mnk-buldozeri/jXNjszaOj#id:16137163',
-    summary:
-      'Ključni izravni derbi vrha tablice u kojem je Allplan Croatia Fermoy upisao pobjedu vrijednu naslova prvaka (obje ekipe završile su ligu s po 26 bodova).',
-  },
-  {
-    id: 'm4',
-    competitionId: 'dobrosusjedski-odnosi',
-    competitionName: 'Liga "Dobrosusjedski odnosi"',
-    round: '11. kolo – Završnica lige',
-    date: 'Sezona 2026.',
-    time: '20:30',
-    venue: 'Vanjsko igralište Gimnazije Križevci',
+    id: 'm-2026-fin',
+    competitionId: 'dobrosusjedski-odnosi-2026',
+    competitionName: 'Dobrosusjedski odnosi 2026.',
+    round: '11. kolo (posljednja večer sezone)',
+    date: '25. rujna 2026.',
+    venue: 'Križevci',
     homeTeam: 'Allplan Croatia Fermoy',
     awayTeam: 'Tehnodiv Servis',
-    homeScore: 2,
-    awayScore: 2,
+    outcomeBadge: 'Remi',
     status: 'odigrano',
     sofascoreMatchUrl:
       'https://www.sofascore.com/minifootball/match/allplan-croatia-fermoy-tehnodiv-servis/KXNjszaOj#id:16137276',
     summary:
-      'Čvrst i neizvjestan susret posljednjeg kola u kojem je bod potvrdio prvo mjesto Allplan Croatia Fermoya na konačnoj ljestvici.',
+      'Susret završne večeri uoči koje su četiri momčadi bile u konkurenciji za naslov. Remijem u posljednjem kolu Allplan Croatia Fermoy potvrdio je prvo mjesto s 26 bodova.',
   },
   {
-    id: 'm5',
-    competitionId: 'dobrosusjedski-odnosi',
-    competitionName: 'Liga "Dobrosusjedski odnosi"',
-    round: '11. kolo – Derbi za postolje',
+    id: 'm-2026-derbi',
+    competitionId: 'dobrosusjedski-odnosi-2026',
+    competitionName: 'Dobrosusjedski odnosi 2026.',
+    round: 'Izravni derbi vrha ljestvice',
     date: 'Sezona 2026.',
-    time: '21:15',
-    venue: 'Vanjsko igralište Gimnazije Križevci',
-    homeTeam: 'MNK Fodrovec',
-    awayTeam: 'Buldožeri',
-    homeScore: 1,
+    venue: 'Križevci',
+    homeTeam: 'Allplan Croatia Fermoy',
+    awayTeam: 'MNK Buldožeri',
+    outcomeBadge: 'Pobjeda domaćih',
+    status: 'odigrano',
+    sofascoreMatchUrl:
+      'https://www.sofascore.com/minifootball/match/allplan-croatia-fermoy-mnk-buldozeri/jXNjszaOj#id:16137163',
+    summary:
+      'Međusobni dvoboj dviju momčadi koje su sezonu završile na vrhu s po 26 bodova. Pobjeda Allplan Croatia Fermoya donijela je prevagu u konačnom poretku.',
+  },
+  {
+    id: 'm-2016-3k-1',
+    competitionId: 'arhiva-dobrosusjedski-2015-2016',
+    competitionName: 'Dobrosusjedski odnosi 2016. (1. liga)',
+    round: '3. kolo',
+    date: '02. srpnja 2016.',
+    venue: 'Igralište SŠ „Ivan Seljanec” Križevci',
+    homeTeam: 'Križevci.info Raven',
+    awayTeam: 'Gornji Cubinec',
+    homeScore: 3,
     awayScore: 3,
-    status: 'odigrano',
-    sofascoreMatchUrl:
-      'https://www.sofascore.com/minifootball/match/mnk-fodrovec-mnk-buldozeri/jXNjsNXNj#id:16137282',
+    status: 'arhiva',
     summary:
-      'Pobjeda Buldožera protiv četvrtoplasiranog MNK Fodrovca za potvrdu drugog mjesta i gol-razliku +32 (39:7).',
+      'Podjela bodova u susretu sa šest pogodaka nakon kojeg je Matija Španić držao vrh ljestvice strijelaca prve lige.',
   },
   {
-    id: 'm6',
-    competitionId: 'dobrosusjedski-odnosi',
-    competitionName: 'Liga "Dobrosusjedski odnosi"',
-    round: '11. kolo',
-    date: 'Sezona 2026.',
-    time: '19:45',
-    venue: 'Vanjsko igralište Gimnazije Križevci',
-    homeTeam: 'Caffe Bar Lampaš & Zlatarna Križevci',
-    awayTeam: 'Caffe Bar Faraon',
-    homeScore: 1,
+    id: 'm-2016-3k-2',
+    competitionId: 'arhiva-dobrosusjedski-2015-2016',
+    competitionName: 'Dobrosusjedski odnosi 2016. (2. liga)',
+    round: '3. kolo',
+    date: '02. srpnja 2016.',
+    venue: 'Igralište SŠ „Ivan Seljanec” Križevci',
+    homeTeam: 'Muharić prijevoz',
+    awayTeam: 'Gračina Boys',
+    homeScore: 5,
     awayScore: 2,
-    status: 'odigrano',
-    sofascoreMatchUrl:
-      'https://www.sofascore.com/minifootball/match/caffe-bar-lampas-and-zlatarna-krizevci-caffe-bar-faraon/hXNjskXNj#id:16137288',
+    status: 'arhiva',
     summary:
-      'Treća uzastopna pobjeda Caffe Bara Faraon za plasman u gornji dom ljestvice (5. mjesto s 22 boda).',
+      'Efikasan susret druge jakosne skupine sa sedam pogodaka; istoga dana Križevački štatuti pobijedili su Caffe bar King 4:0, a Sveti Benedikt svladao je Elektromaterijal F. T. P. Tomac 3:1.',
   },
-];
-
-export const topScorers: TopScorer[] = [
-  { rank: 1, name: 'Igrač 1 (urediti u siteData.ts)', team: 'Buldožeri', competition: 'Dobrosusjedski odnosi', goals: 14, matches: 11, mvpCount: 4 },
-  { rank: 2, name: 'Igrač 2 (urediti u siteData.ts)', team: 'Allplan Croatia Fermoy', competition: 'Dobrosusjedski odnosi', goals: 12, matches: 11, mvpCount: 4 },
-  { rank: 3, name: 'Igrač 3 (urediti u siteData.ts)', team: 'MNK Fodrovec', competition: 'Dobrosusjedski odnosi', goals: 11, matches: 11, mvpCount: 3 },
-  { rank: 4, name: 'Igrač 4 (urediti u siteData.ts)', team: 'Sveti Vid Vrbovec', competition: 'Dobrosusjedski odnosi', goals: 10, matches: 11, mvpCount: 3 },
-  { rank: 5, name: 'Igrač 5 (urediti u siteData.ts)', team: 'Tehnodiv Servis', competition: 'Dobrosusjedski odnosi', goals: 9, matches: 11, mvpCount: 2 },
-  { rank: 6, name: 'Igrač 6 (urediti u siteData.ts)', team: 'Caffe Bar Faraon', competition: 'Dobrosusjedski odnosi', goals: 8, matches: 11, mvpCount: 2 },
-];
-
-export const knockoutPreview: BracketMatch[] = [
-  { id: 'p1', stage: 'Finale', label: '1. mjesto – Prvak lige', time: '26 bodova (30:8)', teamA: 'Allplan Croatia Fermoy', teamB: 'Omjer: 8 pobjeda, 2 remija, 1 poraz', note: 'Bolji u međusobnom susretu s Buldožerima' },
-  { id: 'p2', stage: 'Finale', label: '2. mjesto – Doprvak', time: '26 bodova (39:7)', teamA: 'Buldožeri', teamB: 'Omjer: 8 pobjeda, 2 remija, 1 poraz', note: 'Najbolja gol-razlika lige (+32)' },
-  { id: 'p3', stage: 'Utakmica za 3. mjesto', label: '3. mjesto', time: '25 bodova (30:10)', teamA: 'Sveti Vid Vrbovec', teamB: 'Omjer: 8 pobjeda, 1 remi, 2 poraza', note: 'Niz od 4 uzastopne pobjede u završnici' },
-  { id: 'p4', stage: 'Polufinale', label: '4. mjesto', time: '23 boda (31:12)', teamA: 'MNK Fodrovec', teamB: 'Omjer: 7 pobjeda, 2 remija, 2 poraza', note: 'Gol-razlika +19' },
+  {
+    id: 'm-2016-kup',
+    competitionId: 'arhiva-dobrosusjedski-2015-2016',
+    competitionName: 'Županijski mininogometni kup',
+    round: 'Susret prvaka liga',
+    date: '19. ožujka 2016.',
+    venue: 'Koprivnica',
+    homeTeam: 'Petgrad/OPG Radiček',
+    awayTeam: 'Caffe bar Bonus',
+    homeScore: 2,
+    awayScore: 0,
+    status: 'arhiva',
+    summary:
+      'Ogled prvaka šeste sezone koprivničke KC lige i pobjednika križevačke lige Dobrosusjedski odnosi.',
+    events: [
+      { minute: '1. pol.', player: 'Galinec', team: 'home', type: 'goal' },
+      { minute: '2. pol.', player: 'Jagić', team: 'home', type: 'goal' },
+    ],
+  },
+  {
+    id: 'm-2015-7k-1',
+    competitionId: 'arhiva-dobrosusjedski-2015-2016',
+    competitionName: 'Dobrosusjedski odnosi 2015.',
+    round: '7. kolo',
+    date: '08. – 10. svibnja 2015.',
+    venue: 'Križevci',
+    homeTeam: 'Ruševac 2015',
+    awayTeam: 'Šumarija Križevačko pivo',
+    homeScore: 6,
+    awayScore: 2,
+    status: 'arhiva',
+    summary:
+      'Uvjerljiva pobjeda Ruševca 2015 u sezoni s 24 momčadi; u istom kolu Majurec je svladao Templarse rezultatom 3:1.',
+    events: [
+      { minute: '2×', player: 'Matija Ištvanović (2 pogotka)', team: 'home', type: 'goal' },
+      { minute: '2×', player: 'Matija Kuća (2 pogotka)', team: 'home', type: 'goal' },
+      { minute: '1×', player: 'Luka Ištvanović', team: 'home', type: 'goal' },
+      { minute: '1×', player: 'Dejan Ištvanović', team: 'home', type: 'goal' },
+    ],
+  },
 ];
 
 export const newsArticles: NewsArticle[] = [
   {
     id: 'n1',
-    slug: 'allplan-croatia-fermoy-osvojio-malonogometnu-ligu-dobrosusjedski-odnosi',
-    title: 'Allplan Croatia Fermoy prvak povratničke lige "Dobrosusjedski odnosi" u Križevcima!',
+    slug: 'allplan-croatia-fermoy-prvak-dobrosusjedskih-odnosa-2026',
+    title: 'Allplan Croatia Fermoy prvak Dobrosusjedskih odnosa',
     excerpt:
-      'U napetoj sezoni s 12 momčadi i 11 odigranih kola pod reflektorima Gimnazije, Allplan Croatia Fermoy osvojio je naslov ispred Buldožera i Svetog Vida Vrbovec.',
+      'Povratnička sezona okupila je 12 momčadi, a nakon 11 kola drugo mjesto pripalo je MNK Buldožerima i treće MNK Sv. Vid Vrbovcu. Dodijeljena su i priznanja najboljim pojedincima te fair play ekipama.',
     category: 'Izvještaj',
-    date: 'Rujan 2026.',
+    date: '26. rujna 2026.',
     readTime: '3 min čitanja',
     image: 'images/trophy-ceremony.jpg',
     author: 'Udruga Nogometne lige i turniri',
     featured: true,
     content: [
-      'Nakon deset godina stanke, Malonogometna liga "Dobrosusjedski odnosi" u organizaciji Udruge "Nogometne lige i turniri" ponovno je oživjela petkom navečer na vanjskom igralištu Gimnazije u Križevcima i nadmašila sva očekivanja.',
-      'Kroz 11 kola 12 momčadi postiglo je ukupno 270 pogodaka. Naslov prvaka osvojila je ekipa Allplan Croatia Fermoy s 26 osvojenih bodova (gol-razlika 30:8), koliko su skupili i drugoplasirani Buldožeri (39:7), a o prvom mjestu presudila je pobjeda Allplan Croatia Fermoya u izravnom međusobnom dvoboju.',
-      'Treće mjesto s 25 bodova zauzeo je Sveti Vid Vrbovec uz niz od četiri pobjede u završnici, dok je četvrti bio MNK Fodrovec s 23 boda, ispred Caffe Bara Faraon (22) i Tehnodiv Servisa (18). Cjelokupna tablica i poveznice na Sofascore profile svih ekipa dostupne su u rubrici Raspored i tablice.',
+      'Allplan Croatia Fermoy osvojio je naslov prvaka Malonogometne lige Dobrosusjedski odnosi Križevci za 2026. godinu. Povratnička sezona okupila je 12 momčadi, a nakon 11 kola drugo mjesto pripalo je MNK Buldožerima i treće MNK Sv. Vid Vrbovcu. Uoči posljednjeg kola, odigranog 25. rujna, čak su četiri ekipe još bile u borbi za prvo mjesto.',
+      'Za najboljeg igrača sezone izabran je Ivan Slavi iz MNK Buldožera, najboljim vratarom proglašen je Jakov Car iz prvoplasirane momčadi Allplan Croatia Fermoy, dok je titulu najboljeg strijelca ponio Martin Horvat iz Tehnodiv Servisa.',
+      'Priznanja za fair play zaslužili su Templars i Izvan forme, a sezona je uspješno održana pod pokroviteljstvom Grada Križevaca uz podršku sponzora i partnera.',
     ],
   },
   {
     id: 'n2',
-    slug: 'otvorene-prijave-za-zimski-malonogometni-turnir-krizevci-kup',
-    title: 'Otvorene prijave za Zimski malonogometni turnir "Križevci Kup" – nagradni fond 6.500 €!',
+    slug: 'dobrosusjedski-odnosi-ponovno-na-krizevackom-rasporedu',
+    title: 'Dobrosusjedski odnosi ponovno na križevačkom rasporedu',
     excerpt:
-      'Osigurajte mjesto za svoju ekipu na središnjem dvoranskom događaju ove zime u Križevcima. Broj ekipa ograničen je na 32, a javni ždrijeb skupina održat će se 10. prosinca.',
-    category: 'Prijave',
-    date: '24. studenoga 2026.',
-    readTime: '3 min čitanja',
-    image: 'images/winter-futsal-cup.jpg',
-    author: 'Organizacijski odbor NLT',
+      'Malonogometna liga Dobrosusjedski odnosi vratila se u svibnju 2026. nakon višegodišnje stanke, uz javno dostupne rasporede i rezultate na Sofascoreu pod okriljem udruge.',
+    category: 'Novosti',
+    date: 'Svibanj 2026.',
+    readTime: '2 min čitanja',
+    image: 'images/summer-league-turf.jpg',
+    author: 'Udruga Nogometne lige i turniri',
     content: [
-      'Udruga "Nogometne lige i turniri" Križevci službeno otvara prijave za novo izdanje Zimskog malonogometnog turnira "Križevci Kup", koji će se od 12. prosinca 2026. do 6. siječnja 2027. održavati u Školsko-sportskoj dvorani u Križevcima.',
-      'Ukupni nagradni fond iznosi 6.500 € uz prijelazni i trajne pehare te nagrade za najboljeg igrača, najboljeg strijelca, najboljeg vratara i Fair-play momčad turnira. Svakoj prijavljenoj ekipi zajamčeno je odigravanje najmanje triju utakmica u grupnoj fazi natjecanja.',
-      'Prijave se zaprimaju putem online obrasca na našoj web stranici zaključno s 8. prosinca u 20:00 sati, odnosno do popunjenja kvote od 32 ekipe.',
+      'Malonogometna liga Dobrosusjedski odnosi vratila se u svibnju 2026. godine nakon desetogodišnje stanke. Sezona je započela prvim svibanjskim susretima, a već je drugo kolo donijelo šest uzbudljivih utakmica uz praćenje rasporeda i rezultata na platformi Sofascore.',
+      'Povratak natjecanja uslijedio je u istom proljeću u kojem je registrirana i sportska udruga Nogometne lige i turniri sa sjedištem u Gračini (upisana u Registar udruga RH 20. travnja 2026.).',
+      'Na Sofascoreu je upravo udruga vodila unos i uređivanje podataka o pojedinim susretima, čime je njezino ime izravno povezano s javno dostupnom digitalnom arhivom povratničke sezone.',
     ],
   },
   {
     id: 'n3',
-    slug: 'najava-proljetnog-kupa-mladih-nada-prigorja-2027',
-    title: 'U travnju stiže Kup mladih nada Prigorja za kategorije U-9, U-11 i U-13',
+    slug: 'iz-arhive-srpanj-2016-sedamnaest-momcadi-u-dvije-jakosne-skupine',
+    title: 'Iz arhive, srpanj 2016. — Sedamnaest momčadi u dvije jakosne skupine',
     excerpt:
-      'U suradnji sa školama nogometa regije pripremamo dvodnevni proljetni festival dječjeg nogometa u Križevcima s medaljama za svako prijavljeno dijete.',
-    category: 'Mladi',
-    date: '15. studenoga 2026.',
-    readTime: '2 min čitanja',
-    image: 'images/youth-cup-kids.jpg',
-    author: 'Sekcija za mlade NLT',
+      'U ljeto 2016. Dobrosusjedski odnosi igrali su se u dvije jakosne skupine na igralištima dviju križevačkih srednjih škola i Osnovne škole Kalnik.',
+    category: 'Arhiva',
+    date: 'Iz arhive • Srpanj 2016.',
+    readTime: '3 min čitanja',
+    image: 'images/hero-night-tournament.jpg',
+    author: 'Arhiva natjecanja',
     content: [
-      'Poseban ponos naše udruge su projekti posvećeni najmlađim sportašima. Za vikend 17. i 18. travnja 2027. godine u Križevcima pripremamo Kup mladih nada Prigorja u tri uzrasne kategorije: U-9, U-11 i U-13.',
-      'Osim samog natjecateljskog dijela, na terenima će biti postavljena fan-zona s poligonom nogometnih vještina, edukativnim kutkom o fair-playu i zajedničkim ručkom za sve ekipe.',
-      'Škole nogometa i klubovi već sada mogu iskazati preliminarni interes putem kontakt obrasca kako bismo im na vrijeme poslali službeni poziv i propozicije.',
+      'U ljeto 2016. godine Dobrosusjedski odnosi okupili su 17 momčadi podijeljenih u dvije jakosne skupine – s devet ekipa u prvoj i osam u drugoj ligi. Na rasporedu su bila igrališta kod Srednje škole „Ivan Seljanec” i Gimnazije Ivana Zakmardija Dijankovečkoga u Križevcima te igralište kod Osnovne škole Kalnik. Za razliku od kup-turnira s eliminacijskim utakmicama, tada se igrao jednokružni ligaški sustav bez naknadnog doigravanja.',
+      'U trećem kolu, odigranom 2. srpnja na igralištu Srednje škole „Ivan Seljanec”, Križevci.info Raven i Gornji Cubinec podijelili su bodove rezultatom 3:3, a Matija Španić preuzeo je vrh liste strijelaca prve lige.',
+      'Istoga dana u drugoj su ligi Križevački štatuti pobjedom 4:0 protiv Caffe bara King sačuvali praznu mrežu, Muharić prijevoz u susretu sa sedam pogodaka svladao je Gračina Boyse 5:2, dok je Sveti Benedikt bio bolji od Elektromaterijala F. T. P. Tomac rezultatom 3:1.',
     ],
   },
   {
     id: 'n4',
-    slug: 'objavljen-azurirani-pravilnik-i-upute-za-registraciju-igraca',
-    title: 'Objavljen objedinjeni Pravilnik o natjecanjima i obrasci za novu sezonu',
+    slug: 'iz-arhive-rujan-2015-trojica-igraca-na-popisu-za-europsko-prvenstvo',
+    title: 'Iz arhive, rujan 2015. — Trojica Križevčana na popisu za Europsko prvenstvo',
     excerpt:
-      'U rubrici Dokumenti preuzmite propozicije, obrasce za prijavu momčadi te suglasnosti za nastup maloljetnih igrača s navršenih 16 godina u seniorskim turnirima.',
-    category: 'Obavijest',
-    date: '08. studenoga 2026.',
-    readTime: '2 min čitanja',
-    image: 'images/summer-league-turf.jpg',
-    author: 'Tajništvo udruge',
+      'Aleksandar Korenika, Stjepan Korenika i Antonio Picig našli su se u rujnu 2015. na popisu hrvatske mininogometne reprezentacije za Europsko prvenstvo u Vrsaru.',
+    category: 'Arhiva',
+    date: 'Iz arhive • Rujan 2015.',
+    readTime: '3 min čitanja',
+    image: 'images/veterans-fairplay.jpg',
+    author: 'Arhiva natjecanja',
     content: [
-      'Radi lakše pripreme voditelja ekipa za nadolazeća dvoranska i vanjska natjecanja, Izvršni odbor Udruge "Nogometne lige i turniri" objavio je pročišćeni tekst općih propozicija i disciplinskog pravilnika.',
-      'Najvažnija novost odnosi se na pojednostavljenu digitalnu prijavu popisa igrača do 24 sata prije prve utakmice te jasnije definirana pravila akumuliranih opomena u ligaškim natjecanjima.',
-      'Svi dokumenti dostupni su na podstranici O udruzi i u podnožju stranice.',
+      'Aleksandar Korenika, Stjepan Korenika i Antonio Picig našli su se na popisu hrvatske mininogometne reprezentacije za Europsko prvenstvo održano od 21. do 27. rujna 2015. u Vrsaru. Bio je to iznimno vrijedan doseg za lokalnu mininogometnu sredinu koja je u proljeće iste godine provela izbor kandidata za reprezentativnu selekciju.',
+      'Razmjer tadašnjeg ligaškog natjecanja vidio se i po brojkama: u lokalnom izboru sudjelovali su voditelji svih 24 momčadi i organizatori lige, a za deset mjesta na selekciji u Ivanić-Gradu konkuriralo je ukupno 336 igrača.',
+      'Podaci o reprezentativnom popisu i sačuvani izvještaji s ligaških kola zajedno daju sliku sezone u kojoj je domaći amaterski mali nogomet bio snažno prepoznat i na nacionalnoj razini.',
+    ],
+  },
+  {
+    id: 'n5',
+    slug: 'vizija-udruge-nogometne-lige-i-turniri-diljem-hrvatske',
+    title: 'Nogometne lige i turniri: Otvorena platforma za organizaciju natjecanja diljem Hrvatske',
+    excerpt:
+      'Upisom u Registar udruga RH u travnju 2026. postavljeni su temelji za razvoj i povezivanje rekreativnih liga, turnira i sportskih programa za mlade u cijeloj Hrvatskoj.',
+    category: 'Udruga',
+    date: 'Travanj 2026.',
+    readTime: '2 min čitanja',
+    image: 'images/winter-futsal-cup.jpg',
+    author: 'Vodstvo udruge',
+    content: [
+      'Nakon osnivačke skupštine održane 23. ožujka 2026. te službenog upisa u Registar udruga Republike Hrvatske 20. travnja 2026., udruga Nogometne lige i turniri (Football Leagues and Tournaments) započela je s radom s jasnim ciljem unaprjeđenja organizacije amaterskog nogometa i malog nogometa.',
+      'Iako je sjedište udruge u Gračini, djelovanje udruge nije ograničeno na jedno područje: kroz organizaciju natjecanja i turnira, digitalno praćenje statistike, uključivanje mladih u sport i povezivanje sportskih organizacija otvaramo prostor za suradnju s gradovima, klubovima i rekreativcima u svim krajevima Hrvatske.',
     ],
   },
 ];
@@ -951,137 +975,137 @@ export const newsArticles: NewsArticle[] = [
 export const galleryItems: GalleryItem[] = [
   {
     id: 'g1',
-    title: 'Večernji nogomet pod reflektorima u Križevcima',
+    title: 'Večernji susreti pod reflektorima',
     category: 'Lige',
-    event: 'Liga "Dobrosusjedski odnosi"',
-    date: 'Ljeto 2026.',
+    event: 'Malonogometna liga Dobrosusjedski odnosi',
+    date: 'Sezona 2026.',
     image: 'images/hero-night-tournament.jpg',
-    caption: 'Atmosfera uz teren na večernjim kolima lige "Dobrosusjedski odnosi" u Križevcima.',
+    caption: 'Večernje malonogometne utakmice uz veliku posjećenost i natjecateljski naboj.',
   },
   {
     id: 'g2',
-    title: 'Dvoranski spektakl i pune tribine GŠSD-a',
+    title: 'Dvoranski malonogometni turniri',
     category: 'Turniri',
-    event: 'Zimski Kup Križevci',
-    date: 'Zima',
+    event: 'Turnirska natjecanja udruge',
+    date: '2026.',
     image: 'images/winter-futsal-cup.jpg',
-    caption: 'Napeti dvoboji završnice dvoranskog malonogometnog kupa.',
+    caption: 'Dinamični susreti malog nogometa u dvoranskim uvjetima.',
   },
   {
     id: 'g3',
-    title: 'Susreti kola u ljetnom terminu',
+    title: 'Neizvjesna ligaška završnica kroz 11 kola',
     category: 'Lige',
-    event: 'Liga "Dobrosusjedski odnosi"',
-    date: 'Srpanj 2026.',
+    event: 'Dobrosusjedski odnosi 2026.',
+    date: 'Svibanj – Rujan 2026.',
     image: 'images/summer-league-turf.jpg',
-    caption: 'Dinamični dvoboji seniorskih ekipa u borbi za vrh ljestvice.',
+    caption: 'Dvanaest momčadi u borbi za bodove od svibnja do rujna 2026. godine.',
   },
   {
     id: 'g4',
-    title: 'Osmijesi i sportski pozdrav najmlađih',
+    title: 'Uključivanje djece i mladih u sport',
     category: 'Mladi',
-    event: 'Kup mladih nada Prigorja',
-    date: 'Proljeće',
+    event: 'Razvojni programi i turniri za mlade',
+    date: 'Program udruge',
     image: 'images/youth-cup-kids.jpg',
-    caption: 'Druženje i natjecanje mladih nogometaša uz podršku roditelja i trenera.',
+    caption: 'Poticanje sportskog duha, kretanja i prijateljstva kod najmlađih uzrasta.',
   },
   {
     id: 'g5',
-    title: 'Fair-play stisak ruke prije početnog udarca',
+    title: 'Kultura fair playa kroz generacije',
     category: 'Lige',
-    event: 'Rekreativna i veteranska liga',
-    date: 'Jesen 2026.',
+    event: 'Fair play tradicija od 2015. do danas',
+    date: '2015. – 2026.',
     image: 'images/veterans-fairplay.jpg',
-    caption: 'Kapetani i suci uoči susreta u duhu dobrosusjedskih odnosa i fair-playa.',
+    caption: 'Poštovanje suparnika i sudaca kao temelj svakog natjecanja u organizaciji udruge.',
   },
   {
     id: 'g6',
-    title: 'Pehari i medalje za najbolje momčadi i pojedince',
+    title: 'Pehari i pojedinačna priznanja za najbolje',
     category: 'Nagrade',
-    event: 'Završnica lige "Dobrosusjedski odnosi"',
+    event: 'Proglašenje pobjednika sezone 2026.',
     date: 'Rujan 2026.',
     image: 'images/trophy-ceremony.jpg',
-    caption: 'Svečana dodjela pehara i pojedinačnih priznanja po završetku 11. kola.',
+    caption: 'Priznanja za prvake, najboljeg igrača, vratara, strijelca i fair play momčadi.',
   },
 ];
 
 export const documents: AssociationDocument[] = [
   {
     id: 'doc-statut',
-    title: 'Statut Udruge "Nogometne lige i turniri" Križevci',
+    title: 'Izvadak iz podataka i djelatnosti Udruge „Nogometne lige i turniri”',
     category: 'Udruga',
-    updated: 'Siječanj 2026.',
-    fileSize: 'PDF predložak • 240 KB',
-    summary: 'Temeljni akt udruge kojim se uređuju ciljevi, djelatnosti u području sporta, članstvo i tijela upravljanja.',
+    updated: '20. travnja 2026.',
+    fileSize: 'Službeni podaci • Registar udruga RH',
+    summary: 'Osnovni registracijski podaci (OIB 27201167728, reg. br. 06001657) i popis upisanih sportskih djelatnosti.',
     previewText: [
-      'Članak 1. – Udruga "Nogometne lige i turniri" (skraćeno: NLT Križevci) neprofitna je sportska udruga građana sa sjedištem u Križevcima.',
-      'Članak 2. – Ciljevi Udruge su promicanje, razvitak i unapređenje rekreativnog nogometa i malog nogometa (futsala), organizacija sportskih liga poput lige "Dobrosusjedski odnosi", turnira i manifestacija za djecu, mlade i odrasle.',
-      'Napomena za administratora: Ovdje možete postaviti poveznicu na skenirani PDF vašeg ovjerenog Statuta u mapi public/docs/.',
+      'Puni naziv: Nogometne lige i turniri (eng. Football Leagues and Tournaments)',
+      'Sjedište: Gračina 80, Gračina, Koprivničko-križevačka županija | Osnivačka skupština: 23. ožujka 2026. | Upis u registar: 20. travnja 2026.',
+      'Upisane djelatnosti: promicanje sporta (posebno nogometa i malog nogometa), poticanje sportske rekreacije, organizacija natjecanja i turnira, razvoj amaterskog sporta, povezivanje sportskih organizacija, uključivanje mladih u sport i promicanje fair playa.',
     ],
   },
   {
     id: 'doc-propozicije',
-    title: 'Opće propozicije malonogometnih liga i turnira',
+    title: 'Okvirne propozicije malonogometnih liga i turnira',
     category: 'Propozicije',
-    updated: 'Studeni 2026.',
-    fileSize: 'PDF predložak • 310 KB',
-    summary: 'Pravila igre, trajanje utakmica, kriteriji poretka (bodovi, međusobni omjer, gol-razlika), zamjene i disciplinske mjere.',
+    updated: '2026.',
+    fileSize: 'Predložak propozicija',
+    summary: 'Opća pravila natjecanja, bodovanja, kriterija poretka, opreme momčadi i fair play kodeksa.',
     previewText: [
-      '1. Sustav i pravila: Utakmice se igraju po pravilima malog nogometa uz službene suce i zapisnik.',
-      '2. Kriterij poretka u skupini/ligi: 1) broj osvojenih bodova, 2) međusobni omjer u izravnom susretu, 3) ukupna gol-razlika (DIFF), 4) veći broj postignutih pogodaka (GLS), 5) fair-play bodovi.',
-      '3. Oprema: Sve ekipe dužne su nastupiti u jednoobraznim dresovima/majicama s vidljivim brojevima i sportskoj obući prilagođenoj podlozi.',
+      '1. Sustav natjecanja definira se posebnim raspisom prije početka svake lige ili turnira (jednokružni/dvokružni ligaški sustav ili skupine s eliminacijskom fazom).',
+      '2. Bodovanje u ligi: pobjeda donosi 3 boda, remi 1 bod, poraz 0 bodova.',
+      '3. Sve rezultate, sastave i disciplinske mjere bilježi službena osoba natjecanja u zapisnik utakmice.',
     ],
   },
   {
     id: 'doc-prijavnica',
-    title: 'Službeni obrazac popisa igrača (Prijavnica ekipe)',
+    title: 'Obrazac za prijavu momčadi i popis igrača',
     category: 'Obrasci',
-    updated: 'Studeni 2026.',
-    fileSize: 'DOCX / PDF • 145 KB',
-    summary: 'Tablica za upis igrača s brojevima dresova, datumom rođenja i potpisom voditelja ekipe.',
+    updated: '2026.',
+    fileSize: 'Predložak obrasca',
+    summary: 'Standardizirani obrazac za registraciju ekipe, kontakt voditelja i popis prijavljenih igrača.',
     previewText: [
-      'Naziv ekipe: ___________________________ | Mjesto: ___________________________',
-      'Voditelj ekipe (ime, prezime i mobitel): _______________________________________',
-      'Popis igrača (1 – 12): Redni broj, Ime i prezime, Datum rođenja, Broj dresa, Vlastoručni potpis o nastupu na vlastitu odgovornost.',
+      'Naziv ekipe: ___________________________ | Grad / mjesto: ___________________________',
+      'Voditelj ekipe (ime, prezime, telefon i e-pošta): ____________________________________',
+      'Popis prijavljenih igrača s datumom rođenja i brojem dresa te potpisom prihvaćanja propozicija natjecanja.',
     ],
   },
   {
     id: 'doc-suglasnost',
-    title: 'Suglasnost roditelja/skrbnika za maloljetne sudionike',
+    title: 'Suglasnost roditelja/skrbnika za nastup maloljetnih sportaša',
     category: 'Obrasci',
-    updated: 'Listopad 2026.',
-    fileSize: 'PDF • 110 KB',
-    summary: 'Obvezna pisana suglasnost za nastup na Kupu mladih nada te za igrače od 16 do 18 godina na seniorskim turnirima.',
+    updated: '2026.',
+    fileSize: 'Predložak obrasca',
+    summary: 'Pisana suglasnost zakonskog zastupnika za sudjelovanje djece i maloljetnih igrača na turnirima i ligama.',
     previewText: [
-      'Ja, dolje potpisani roditelj/zakonski zastupnik, dajem suglasnost da moje dijete sudjeluje na sportskom natjecanju u organizaciji Udruge "Nogometne lige i turniri" Križevci te potvrđujem da je dijete zdravstveno sposobno za sportske napore.',
+      'Suglasnost roditelja/zakonskog zastupnika za sudjelovanje maloljetnog igrača na sportskom natjecanju u organizaciji udruge Nogometne lige i turniri.',
     ],
   },
 ];
 
 export const faqs = [
   {
-    question: 'Gdje se prate službeni rezultati i statistika lige "Dobrosusjedski odnosi"?',
+    question: 'Djeluje li udruga samo na križevačkom području ili u cijeloj Hrvatskoj?',
     answer:
-      'Pored prikaza na našoj službenoj web stranici, rezultati, tablica i pojedinačni susreti Malonogometne lige "Dobrosusjedski odnosi" dostupni su i na platformi Sofascore Minifootball – klikom na naziv bilo koje od 12 ekipa u tablici otvarate njihov profil.',
+      'Iako je sjedište udruge u Gračini te se uz nju veže tradicija lige Dobrosusjedski odnosi u Križevcima, udruga Nogometne lige i turniri (Football Leagues and Tournaments) osnovana je za djelovanje i širenje sportskih projekata, liga i turnira po cijeloj Hrvatskoj.',
   },
   {
-    question: 'Kako možemo prijaviti ekipu na nadolazeću ligu ili turnir?',
+    question: 'Koja je razlika između povijesti lige Dobrosusjedski odnosi i današnje udruge?',
     answer:
-      'Ekipu najbrže prijavljujete putem online obrasca na stranici "Prijava i kontakt". Nakon slanja obrasca automatski dobivate podatke za uplatu kotizacije (IBAN i opis plaćanja), a naše vodstvo potvrđuje vašu prijavu povratnim pozivom ili e-mailom.',
+      'Malonogometna liga Dobrosusjedski odnosi dokumentirana je najmanje od sezone 2015. godine, dok je današnja udruga Nogometne lige i turniri održala osnivačku skupštinu 23. ožujka 2026. te je upisana u Registar udruga RH 20. travnja 2026. pod registarskim brojem 06001657.',
   },
   {
-    question: 'Što odlučuje o poretku ako dvije ekipe imaju jednak broj bodova?',
+    question: 'Tko su voditelji udruge i kako možemo stupiti u kontakt za suradnju?',
     answer:
-      'Sukladno propozicijama lige, prvi dodatni kriterij kod istog broja bodova je rezultat međusobnog susreta (primjerice, Allplan Croatia Fermoy osvojio je 1. mjesto s 26 bodova ispred Buldožera zahvaljujući pobjedi u izravnom ogledu), a zatim ukupna gol-razlika i broj postignutih golova.',
+      'Voditelji i koordinatori natjecanja su Alen Miholić i Matija Vuković. Za prijavu ekipe, prijedlog organizacije turnira/lige u vašem gradu ili sponzorstvo možete se javiti putem online obrasca na stranici ili izravno na nogometneligeiturniri@gmail.com.',
   },
   {
-    question: 'Možemo li popis igrača dostaviti neposredno prije prve utakmice?',
+    question: 'Gdje su dostupni rezultati i statistika odigrane sezone 2026.?',
     answer:
-      'Da! Za rezervaciju mjesta u ždrijebu dovoljno je prijaviti naziv ekipe, kontakt voditelja i uplatiti kotizaciju, dok konačan popis igrača predajete za zapisničkim stolom najkasnije 30 minuta prije vaše prve utakmice.',
+      'Kompletna tablica, dobitnici pojedinačnih priznanja i poveznice nalaze se u našoj rubrici „Raspored i tablice”, a detaljni podaci o utakmicama sezone 2026. javno su dostupni i na platformi Sofascore.',
   },
   {
-    question: 'Kako tvrtke, obrti ili kafići mogu postati sponzori ekipa ili udruge?',
+    question: 'Imate li stare zapisnike, fotografije ili rezultate iz ranijih sezona lige?',
     answer:
-      'Brojni lokalni poduzetnici i ugostitelji već nose nazive ekipa ili podupiru nagradni fond lige. Nudimo transparentne sponzorske pakete s isticanjem logotipa uz teren u Križevcima, na web stranici i društvenim mrežama.',
+      'Sustavno gradimo i nadopunjujemo povijesnu arhivu natjecanja! Ako posjedujete službene zapisnike, tablice ili fotografije s dopuštenjem za objavu iz ranijih sezona, slobodno nam ih pošaljite na e-poštu udruge.',
   },
 ];

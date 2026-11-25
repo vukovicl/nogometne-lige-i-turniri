@@ -39,10 +39,13 @@ export function CompetitionDetailPage() {
 
   const relatedTable = leagueTables.find((t) => t.competitionSlug === competition.slug);
   const relatedMatches = matches.filter((m) => m.competitionId === competition.id);
-  const fillPercent = Math.min(
-    100,
-    Math.round((competition.registeredTeams / competition.maxTeams) * 100)
-  );
+  const hasCapacity =
+    typeof competition.maxTeams === 'number' &&
+    typeof competition.registeredTeams === 'number' &&
+    competition.maxTeams > 0;
+  const fillPercent = hasCapacity
+    ? Math.min(100, Math.round(((competition.registeredTeams || 0) / (competition.maxTeams || 1)) * 100))
+    : 0;
 
   return (
     <>
@@ -71,7 +74,7 @@ export function CompetitionDetailPage() {
             }}
           >
             <ArrowLeft size={16} aria-hidden="true" />
-            <span>Sva natjecanja udruge</span>
+            <span>Svi programi i natjecanja</span>
           </Link>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '0.85rem' }}>
@@ -99,11 +102,11 @@ export function CompetitionDetailPage() {
                 className="btn btn--accent"
               >
                 <Trophy size={18} aria-hidden="true" />
-                <span>Prijavi ekipu na ovo natjecanje</span>
+                <span>Prijavi ekipu ili pošalji upit</span>
               </Link>
             )}
             <Link to="/raspored-i-tablice" viewTransition className="btn btn--outline-light">
-              Raspored i rezultati
+              Rezultati i tablica
             </Link>
           </div>
         </div>
@@ -120,7 +123,6 @@ export function CompetitionDetailPage() {
             }}
             className="detail-layout-grid"
           >
-            {/* Lijevi stupac: Opis, izdvojeno, propozicije, tablica */}
             <div style={{ display: 'grid', gap: '2rem' }}>
               <div
                 style={{
@@ -131,7 +133,7 @@ export function CompetitionDetailPage() {
                 }}
               >
                 <h2 style={{ fontSize: '1.65rem', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
-                  O natjecanju
+                  Opis i značajke
                 </h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.02rem' }}>
                   {competition.description}
@@ -145,7 +147,7 @@ export function CompetitionDetailPage() {
                     marginBottom: '0.75rem',
                   }}
                 >
-                  Što očekuje sudionike i gledatelje
+                  Ključne točke
                 </h3>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '0.6rem' }}>
                   {competition.highlights.map((item) => (
@@ -164,7 +166,6 @@ export function CompetitionDetailPage() {
                 </ul>
               </div>
 
-              {/* Nagradni fond */}
               <div
                 style={{
                   background: 'var(--bg-surface)',
@@ -176,7 +177,7 @@ export function CompetitionDetailPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
                   <Award size={22} aria-hidden="true" style={{ color: 'var(--gold-600)' }} />
                   <h2 style={{ fontSize: '1.6rem', textTransform: 'uppercase' }}>
-                    Nagrade i priznanja
+                    Poredak, nagrade i priznanja
                   </h2>
                 </div>
                 <div style={{ display: 'grid', gap: '0.7rem' }}>
@@ -201,7 +202,6 @@ export function CompetitionDetailPage() {
                 </div>
               </div>
 
-              {/* Sažetak pravila */}
               <div
                 style={{
                   background: 'var(--bg-surface)',
@@ -213,7 +213,7 @@ export function CompetitionDetailPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
                   <ShieldAlert size={22} aria-hidden="true" style={{ color: 'var(--pitch-700)' }} />
                   <h2 style={{ fontSize: '1.6rem', textTransform: 'uppercase' }}>
-                    Izvadak iz propozicija
+                    Pravila i ustroj natjecanja
                   </h2>
                 </div>
                 <ul style={{ margin: 0, paddingInlineStart: '1.25rem', display: 'grid', gap: '0.55rem' }}>
@@ -228,14 +228,13 @@ export function CompetitionDetailPage() {
               {relatedTable && (
                 <div>
                   <h2 style={{ fontSize: '1.75rem', textTransform: 'uppercase', marginBottom: '0.9rem' }}>
-                    Aktualna ljestvica natjecanja
+                    Službena tablica natjecanja
                   </h2>
                   <StandingsTable table={relatedTable} />
                 </div>
               )}
             </div>
 
-            {/* Desni stupac: Tehnička osobna iskaznica natjecanja i utakmice */}
             <aside style={{ display: 'grid', gap: '1.25rem' }}>
               <div
                 style={{
@@ -249,26 +248,28 @@ export function CompetitionDetailPage() {
                 }}
               >
                 <h2 style={{ fontSize: '1.45rem', textTransform: 'uppercase' }}>
-                  Ključne informacije
+                  Sažetak informacija
                 </h2>
 
-                <div className="capacity-bar">
-                  <div className="capacity-bar__label">
-                    <span>Status prijava ekipa</span>
-                    <span>
-                      {competition.registeredTeams} / {competition.maxTeams}
-                    </span>
+                {hasCapacity && (
+                  <div className="capacity-bar">
+                    <div className="capacity-bar__label">
+                      <span>Sudionici</span>
+                      <span>
+                        {competition.registeredTeams} / {competition.maxTeams} momčadi
+                      </span>
+                    </div>
+                    <div className="capacity-bar__track" aria-hidden="true">
+                      <div className="capacity-bar__fill" style={{ width: `${fillPercent}%` }} />
+                    </div>
                   </div>
-                  <div className="capacity-bar__track" aria-hidden="true">
-                    <div className="capacity-bar__fill" style={{ width: `${fillPercent}%` }} />
-                  </div>
-                </div>
+                )}
 
                 <div style={{ display: 'grid', gap: '0.75rem', fontSize: '0.92rem' }}>
                   <div style={{ display: 'flex', gap: '0.65rem' }}>
                     <Calendar size={18} aria-hidden="true" style={{ color: 'var(--pitch-700)', flexShrink: 0 }} />
                     <div>
-                      <strong>Termin održavanja:</strong>
+                      <strong>Razdoblje / Termin:</strong>
                       <div style={{ color: 'var(--text-secondary)' }}>{competition.dates}</div>
                     </div>
                   </div>
@@ -277,7 +278,7 @@ export function CompetitionDetailPage() {
                     <div style={{ display: 'flex', gap: '0.65rem' }}>
                       <Clock size={18} aria-hidden="true" style={{ color: 'var(--gold-600)', flexShrink: 0 }} />
                       <div>
-                        <strong>Rok za prijavu ekipa:</strong>
+                        <strong>Rok za prijavu:</strong>
                         <div style={{ color: 'var(--text-secondary)' }}>
                           {competition.registrationDeadline}
                         </div>
@@ -288,7 +289,7 @@ export function CompetitionDetailPage() {
                   <div style={{ display: 'flex', gap: '0.65rem' }}>
                     <MapPin size={18} aria-hidden="true" style={{ color: 'var(--pitch-700)', flexShrink: 0 }} />
                     <div>
-                      <strong>Lokacija i podloga:</strong>
+                      <strong>Područje i podloga:</strong>
                       <div style={{ color: 'var(--text-secondary)' }}>
                         {competition.location} ({competition.surface})
                       </div>
@@ -298,7 +299,7 @@ export function CompetitionDetailPage() {
                   <div style={{ display: 'flex', gap: '0.65rem' }}>
                     <Users size={18} aria-hidden="true" style={{ color: 'var(--pitch-700)', flexShrink: 0 }} />
                     <div>
-                      <strong>Sustav igre i trajanje:</strong>
+                      <strong>Format:</strong>
                       <div style={{ color: 'var(--text-secondary)' }}>
                         {competition.format} • {competition.matchDuration}
                       </div>
@@ -308,7 +309,7 @@ export function CompetitionDetailPage() {
                   <div style={{ display: 'flex', gap: '0.65rem' }}>
                     <Coins size={18} aria-hidden="true" style={{ color: 'var(--pitch-700)', flexShrink: 0 }} />
                     <div>
-                      <strong>Kotizacija:</strong>
+                      <strong>Uvjeti sudjelovanja:</strong>
                       <div style={{ color: 'var(--text-secondary)' }}>{competition.entryFee}</div>
                     </div>
                   </div>
@@ -320,7 +321,7 @@ export function CompetitionDetailPage() {
                     viewTransition
                     className="btn btn--primary btn--full"
                   >
-                    Ispuni online prijavnicu
+                    Ispuni prijavu ili pošalji upit
                   </Link>
                 )}
               </div>
@@ -337,7 +338,7 @@ export function CompetitionDetailPage() {
                   }}
                 >
                   <h3 style={{ fontSize: '1.3rem', textTransform: 'uppercase' }}>
-                    Povezane utakmice
+                    Zabilježeni susreti
                   </h3>
                   {relatedMatches.map((m) => (
                     <div
@@ -350,13 +351,13 @@ export function CompetitionDetailPage() {
                       }}
                     >
                       <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>
-                        {m.round} • {m.date} ({m.time})
+                        {m.round} • {m.date}
                       </div>
                       <div style={{ fontWeight: 700, marginTop: '0.2rem' }}>
                         {m.homeTeam}{' '}
-                        {m.status === 'odigrano'
+                        {typeof m.homeScore === 'number' && typeof m.awayScore === 'number'
                           ? `${m.homeScore}:${m.awayScore}`
-                          : 'vs'}{' '}
+                          : '–'}{' '}
                         {m.awayTeam}
                       </div>
                     </div>
